@@ -2,22 +2,20 @@
 import React, { useState } from 'react';
 
 export default function Home() {
-  // State para sa Contact Form
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState<string | null>(null);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("loading");
-    const form = e.target;
+    const form = e.currentTarget;
     
     const body = {
-      name: form.name.value,
-      email: form.email.value,
-      message: form.message.value,
+      name: (form.elements.namedItem("name") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
     };
 
     try {
-      // Dito tatawagin ang Vercel/Next.js Backend API natin mamaya
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -37,7 +35,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-white font-sans">
-      {/* HEADER / NAVIGATION */}
       <header className="fixed top-0 left-0 right-0 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold text-lime-400">My Portfolio</h1>
@@ -49,31 +46,27 @@ export default function Home() {
         </div>
       </header>
 
-      {/* HERO / HOME SECTION */}
       <section id="home" className="pt-32 pb-20 px-6 max-w-4xl mx-auto text-center">
         <h2 className="text-5xl md:text-6xl font-extrabold mb-6">
-          Hi, I'm a <span className="text-lime-400">Full-Stack Developer</span>
+          Hi, {"I'm"} a <span className="text-lime-400">Full-Stack Developer</span>
         </h2>
         <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-8">
           I build clean, secure, and responsive web applications. Welcome to my beginner portfolio capstone project deployed on Vercel!
         </p>
         <a href="#contact" className="inline-block bg-lime-400 text-slate-950 font-bold px-6 py-3 rounded-full hover:bg-lime-300 transition-colors">
-          Let's Work Together
+          {"Let's"} Work Together
         </a>
       </section>
 
-      {/* PROJECTS SECTION */}
       <section id="projects" className="py-20 bg-slate-950 px-6">
         <div className="max-w-6xl mx-auto">
           <h3 className="text-3xl font-bold text-center mb-12">Featured Projects</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Project Card 1 */}
             <div className="bg-slate-900 rounded-xl p-6 border border-slate-800 hover:border-lime-400/50 transition-colors">
               <h4 className="text-xl font-bold mb-2">Weather Dashboard</h4>
               <p className="text-slate-400 text-sm mb-4">Real-time weather app with geolocation & data fetching APIs.</p>
               <div className="flex gap-2 mb-4"><span className="text-xs bg-slate-800 text-lime-400 px-2 py-1 rounded">React</span></div>
             </div>
-            {/* Project Card 2 */}
             <div className="bg-slate-900 rounded-xl p-6 border border-slate-800 hover:border-lime-400/50 transition-colors">
               <h4 className="text-xl font-bold mb-2">TaskManager Pro</h4>
               <p className="text-slate-400 text-sm mb-4">Full-stack project tracker with backend logic and authentication.</p>
@@ -83,7 +76,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CONTACT SECTION */}
       <section id="contact" className="py-20 px-6 max-w-lg mx-auto">
         <h3 className="text-3xl font-bold text-center mb-4">Get In Touch</h3>
         <p className="text-slate-400 text-center text-sm mb-8">Leave a message below and it will be saved directly into my MongoDB database!</p>
@@ -99,7 +91,7 @@ export default function Home() {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-400">Message</label>
-            <textarea name="message" rows="4" required className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-lime-400"></textarea>
+            <textarea name="message" rows={4} required className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-lime-400"></textarea>
           </div>
           <button type="submit" disabled={status === "loading"} className="w-full bg-lime-400 text-slate-950 font-bold p-3 rounded-lg hover:bg-lime-300 transition-colors disabled:opacity-50">
             {status === "loading" ? "Sending..." : "Send Message"}
