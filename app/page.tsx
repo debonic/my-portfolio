@@ -554,7 +554,7 @@ export default function HomePage() {
 
         {/* ── FOOTER ── */}
         <footer className="footer">
-          <span className="footer-copy">© 2025 Von Untalan · STR VA & Operations Specialist</span>
+          <span className="footer-copy">© 2026 Von Untalan · STR VA & Operations Specialist</span>
           <div className="footer-links">
             <a href="https://www.instagram.com/vonstrva/" target="_blank" rel="noopener noreferrer" className="footer-link">
               <IgIcon /> @vonstrva
