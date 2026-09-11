@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Generator</title>
+<style>
+  :root{
+    --ui-bg:#f5f6f8;
+    --ui-panel:#ffffff;
+    --ui-border:#e2e4e9;
+    --ui-text:#1c2129;
+    --ui-muted:#6b7280;
+    --ui-accent:#2454ff;
+    --ui-accent-dark:#173bcc;
+    --ui-danger:#d1453b;
+    --ui-radius:8px;
+    --focus-ring:0 0 0 3px rgba(36,84,255,.35);
+    --doc-accent:#2454ff;
+    font-size:16px;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--ui-bg);
+    color:var(--ui-text);
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;}
+  input,select,textarea{font-family:inherit;font-size:.92rem;}
+  a{color:var(--ui-accent);}
+
+  /* ---------- Layout shell ---------- */
+  .app{display:flex;flex-direction:column;min-height:100vh;}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px 20px;background:var(--ui-panel);border-bottom:1px solid var(--ui-border);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar h1{font-size:1.05rem;font-weight:700;margin:0;letter-spacing:.01em;}
+  .topbar-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .layout{display:flex;flex:1;min-height:0;align-items:flex-start;}
+  @media (max-width:980px){ .layout{flex-direction:column;} }
+
+  .editor{
+    width:460px;flex:0 0 460px;max-width:100%;
+    padding:16px;overflow-y:auto;height:calc(100vh - 57px);
+    border-right:1px solid var(--ui-border);
+  }
+  @media (max-width:980px){ .editor{width:100%;flex:1 1 auto;height:auto;border-right:none;} }
+
+  .previewPane{
+    flex:1;min-width:0;padding:24px;display:flex;justify-content:center;
+    height:calc(100vh - 57px);overflow-y:auto;background:#eceef2;
+  }
+  @media (max-width:980px){ .previewPane{height:auto;padding:16px;} }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 14px;border-radius:var(--ui-radius);border:1px solid var(--ui-border);
+    background:var(--ui-panel);color:var(--ui-text);font-size:.85rem;font-weight:600;
+    cursor:pointer;transition:background .12s,border-color .12s;white-space:nowrap;
+  }
+  .btn:hover{background:#f0f1f4;}
+  .btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible{
+    outline:none;box-shadow:var(--focus-ring);
+  }
+  .btn.primary{background:var(--ui-accent);border-color:var(--ui-accent);color:#fff;}
+  .btn.primary:hover{background:var(--ui-accent-dark);}
+  .btn.danger{color:var(--ui-danger);}
+  .btn.small{padding:5px 9px;font-size:.76rem;border-radius:6px;}
+  .btn.ghost{background:transparent;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .icon-btn{
+    width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;
+    border-radius:6px;border:1px solid var(--ui-border);background:#fff;cursor:pointer;color:var(--ui-muted);
+    font-size:.85rem;
+  }
+  .icon-btn:hover{background:#f0f1f4;color:var(--ui-text);}
+
+  /* ---------- Editor sections ---------- */
+  details.section{
+    background:var(--ui-panel);border:1px solid var(--ui-border);border-radius:var(--ui-radius);
+    margin-bottom:10px;overflow:hidden;
+  }
+  details.section > summary{
+    padding:12px 14px;font-weight:700;font-size:.88rem;cursor:pointer;list-style:none;
+    display:flex;align-items:center;justify-content:space-between;user-select:none;
+  }
+  details.section > summary::-webkit-details-marker{display:none;}
+  details.section > summary::after{content:"▸";color:var(--ui-muted);transition:transform .15s;font-size:.75rem;}
+  details.section[open] > summary::after{transform:rotate(90deg);}
+  details.section > summary:hover{background:#fafbfc;}
+  .section-body{padding:4px 14px 14px;border-top:1px solid var(--ui-border);}
+
+  .field{margin-bottom:10px;}
+  .field label{display:block;font-size:.76rem;font-weight:600;color:var(--ui-muted);margin-bottom:4px;}
+  .field input[type=text], .field input[type=email], .field input[type=tel], .field input[type=date],
+  .field input[type=number], .field input[type=url], .field select, .field textarea{
+    width:100%;padding:8px 10px;border:1px solid var(--ui-border);border-radius:6px;background:#fff;color:var(--ui-text);
+  }
+  .field textarea{resize:vertical;min-height:56px;}
+  .field.error input, .field.error select, .field.error textarea{border-color:var(--ui-danger);}
+  .field-error{color:var(--ui-danger);font-size:.74rem;margin-top:3px;display:none;}
+  .field.error .field-error{display:block;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .checkline{display:flex;align-items:center;gap:7px;font-size:.8rem;color:var(--ui-muted);margin:4px 0;}
+  .checkline input{width:15px;height:15px;}
+  .hint{font-size:.74rem;color:var(--ui-muted);margin-top:2px;}
+  .subhead{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ui-muted);margin:14px 0 8px;}
+  .subhead:first-child{margin-top:0;}
+  hr.sep{border:none;border-top:1px solid var(--ui-border);margin:12px 0;}
+
+  .show-toggles{display:flex;flex-wrap:wrap;gap:10px 16px;margin:8px 0 12px;padding:8px 10px;background:#fafbfc;border-radius:6px;border:1px solid var(--ui-border);}
+
+  .custom-field-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;}
+  .custom-field-row input{flex:1;padding:7px 9px;border:1px solid var(--ui-border);border-radius:6px;}
+
+  /* logo */
+  .logo-upload{display:flex;align-items:center;gap:10px;}
+  .logo-preview{width:64px;height:64px;border:1px dashed var(--ui-border);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafbfc;flex-shrink:0;}
+  .logo-preview img{max-width:100%;max-height:100%;object-fit:contain;}
+
+  /* color swatches */
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .swatch{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--ui-border);cursor:pointer;padding:0;}
+  .swatch.active{box-shadow:0 0 0 2px var(--ui-text);}
+  .template-choices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .template-choice{border:2px solid var(--ui-border);border-radius:8px;padding:8px 6px;text-align:center;cursor:pointer;background:#fff;font-size:.72rem;font-weight:600;}
+  .template-choice.active{border-color:var(--ui-accent);color:var(--ui-accent);background:#eef2ff;}
+  .template-choice .swatch-bar{height:20px;border-radius:3px;margin-bottom:6px;background:#ddd;}
+
+  /* items */
+  .item-card{
+    border:1px solid var(--ui-border);border-radius:8px;margin-bottom:10px;background:#fcfcfd;
+  }
+  .item-card.dragover{border-color:var(--ui-accent);}
+  .item-card-head{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#f5f6f8;border-bottom:1px solid var(--ui-border);border-radius:8px 8px 0 0;}
+  .drag-handle{cursor:grab;color:var(--ui-muted);font-size:.9rem;padding:2px 4px;}
+  .item-card-head .item-index{font-size:.72rem;font-weight:700;color:var(--ui-muted);margin-right:auto;}
+  .item-card-body{padding:10px;}
+  .item-amount-display{margin-top:6px;text-align:right;font-size:.85rem;font-weight:700;color:var(--ui-text);}
+
+  .extra-col-tag{display:inline-flex;align-items:center;gap:5px;background:#eef2ff;color:var(--ui-accent-dark);border-radius:20px;padding:3px 8px 3px 10px;font-size:.72rem;font-weight:600;margin:0 6px 6px 0;}
+  .extra-col-tag button{border:none;background:none;color:inherit;cursor:pointer;font-size:.85rem;line-height:1;}
+
+  .charge-row{display:grid;grid-template-columns:1fr 90px 100px auto auto;gap:6px;align-items:center;margin-bottom:6px;}
+  .charge-row select, .charge-row input{padding:6px 8px;border:1px solid var(--ui-border);border-radius:6px;}
+  @media (max-width:520px){ .charge-row{grid-template-columns:1fr 1fr;} }
+
+  .add-link{background:none;border:1px dashed var(--ui-border);border-radius:6px;color:var(--ui-accent);font-weight:700;font-size:.8rem;padding:7px 10px;width:100%;cursor:pointer;text-align:center;}
+  .add-link:hover{background:#f5f7ff;}
+
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#1c2129;color:#fff;padding:10px 18px;border-radius:8px;font-size:.85rem;
+    opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;z-index:200;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- Invoice document / preview ---------- */
+  .previewScroll{width:100%;max-width:900px;}
+  .invoice-doc{
+    background:#fff;width:210mm;min-height:297mm;margin:0 auto;
+    padding:16mm 14mm;color:#1c2129;box-shadow:0 4px 24px rgba(0,0,0,.12);
+    font-size:10.5pt;line-height:1.5;
+  }
+  @media (max-width:900px){ .invoice-doc{width:100%;min-height:auto;padding:8mm;} }
+
+  .doc-header{display:flex;justify-content:space-between;gap:20px;margin-bottom:22px;align-items:flex-start;}
+  .doc-header .brand{display:flex;gap:12px;align-items:flex-start;}
+  .doc-header .brand img{max-width:70px;max-height:70px;object-fit:contain;}
+  .doc-header .brand-name{font-weight:800;font-size:1.15rem;margin:0 0 3px;}
+  .doc-header .brand-lines{font-size:.82rem;color:#555;line-height:1.45;}
+  .doc-title-block{text-align:right;}
+  .doc-title{font-size:1.7rem;font-weight:800;letter-spacing:.03em;margin:0 0 4px;color:var(--doc-accent);}
+  .doc-meta-line{font-size:.82rem;color:#444;}
+  .doc-meta-line b{color:#1c2129;}
+  .status-badge{
+    display:inline-block;padding:3px 12px;border-radius:20px;font-size:.7rem;font-weight:700;
+    letter-spacing:.03em;text-transform:uppercase;margin-top:6px;
+  }
+  .status-draft{background:#e5e7eb;color:#374151;}
+  .status-unpaid{background:#fef3c7;color:#92400e;}
+  .status-paid{background:#d1fae5;color:#065f46;}
+  .status-partially-paid{background:#dbeafe;color:#1e40af;}
+  .status-overdue{background:#fee2e2;color:#991b1b;}
+  .status-cancelled{background:#e5e7eb;color:#6b7280;text-decoration:line-through;}
+
+  .doc-parties{display:flex;gap:24px;margin-bottom:20px;flex-wrap:wrap;}
+  .doc-party{flex:1;min-width:180px;}
+  .doc-party h3{
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--doc-accent);
+    margin:0 0 6px;font-weight:800;border-bottom:2px solid var(--doc-accent);padding-bottom:4px;
+  }
+  .doc-party .pname{font-weight:700;font-size:.95rem;margin-bottom:2px;}
+  .doc-party .pline{font-size:.82rem;color:#444;line-height:1.5;}
+
+  .doc-extra-fields{display:flex;flex-wrap:wrap;gap:6px 22px;margin-bottom:20px;font-size:.8rem;color:#444;}
+  .doc-extra-fields span b{color:#1c2129;}
+
+  table.items-table{width:100%;border-collapse:collapse;margin-bottom:6px;}
+  table.items-table thead th{
+    text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;
+    color:#fff;background:var(--doc-accent);padding:8px 8px;font-weight:700;
+  }
+  table.items-table thead th.num{text-align:right;}
+  table.items-table tbody td{padding:8px 8px;font-size:.82rem;border-bottom:1px solid #e7e7e9;vertical-align:top;}
+  table.items-table tbody td.num{text-align:right;white-space:nowrap;}
+  table.items-table tbody tr:last-child td{border-bottom:1px solid #d8d8db;}
+  .item-desc-main{font-weight:600;}
+  .item-desc-sub{font-size:.74rem;color:#777;}
+
+  .doc-totals{display:flex;justify-content:flex-end;margin:14px 0 20px;}
+  .totals-box{width:280px;}
+  .totals-row{display:flex;justify-content:space-between;font-size:.85rem;padding:5px 0;color:#444;}
+  .totals-row.grand{
+    border-top:2px solid var(--doc-accent);margin-top:6px;padding-top:8px;
+    font-size:1.05rem;font-weight:800;color:#1c2129;
+  }
+
+  .doc-section{margin-bottom:16px;}
+  .doc-section h4{
+    font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--doc-accent);
+    margin:0 0 5px;font-weight:800;
+  }
+  .doc-section p{font-size:.82rem;color:#444;margin:0;white-space:pre-wrap;line-height:1.55;}
+  .payment-grid{display:flex;flex-wrap:wrap;gap:4px 26px;font-size:.82rem;color:#444;}
+  .payment-grid span b{color:#1c2129;}
+
+  .doc-footer{
+    margin-top:28px;padding-top:14px;border-top:1px solid #e2e2e5;text-align:center;
+    font-size:.82rem;color:#666;
+  }
+  .doc-footer .thankyou{font-weight:700;color:#1c2129;font-size:.92rem;margin-bottom:4px;}
+
+  /* --- Template: Modern --- */
+  .template-modern .doc-header{background:var(--doc-accent);color:#fff;margin:-16mm -14mm 20px;padding:14mm 14mm 16px;}
+  .template-modern .doc-header .brand-name{color:#fff;}
+  .template-modern .doc-header .brand-lines{color:rgba(255,255,255,.85);}
+  .template-modern .doc-title{color:#fff;}
+  .template-modern .doc-meta-line{color:rgba(255,255,255,.85);}
+  .template-modern .doc-meta-line b{color:#fff;}
+  .template-modern .doc-party h3{border-bottom:none;background:#f4f5fb;padding:5px 8px;border-radius:4px;}
+  .template-modern table.items-table thead th{background:#1c2129;}
+  .template-modern .totals-row.grand{background:#f4f5fb;padding:10px;border-top:none;border-radius:6px;}
+
+  /* --- Template: Minimal --- */
+  .template-minimal{--doc-accent:#1c2129 !important;}
+  .template-minimal .doc-title{font-weight:400;letter-spacing:.15em;}
+  .template-minimal .doc-party h3{border-bottom:1px solid #1c2129;color:#1c2129;}
+  .template-minimal table.items-table thead th{background:#fff;color:#1c2129;border-bottom:2px solid #1c2129;border-radius:0;}
+  .template-minimal .status-badge{border-radius:0;border:1px solid currentColor;background:transparent !important;}
+  .template-minimal .totals-row.grand{border-top:1px solid #1c2129;}
+
+  /* font sizing */
+  .fs-small{font-size:9.5pt;}
+  .fs-large{font-size:11.5pt;}
+
+  /* ---------- Print ---------- */
+  @media print{
+    body *{visibility:hidden;}
+    #invoicePreview, #invoicePreview *{visibility:visible;}
+    #invoicePreview{
+      position:absolute;left:0;top:0;width:210mm;min-height:297mm;margin:0;box-shadow:none;padding:14mm;
+    }
+    .toast{display:none;}
+  }
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <h1>🧾 Invoice Generator</h1>
+    <div class="topbar-actions">
+      <button class="btn" id="btnLoad" type="button">Load Invoice</button>
+      <button class="btn" id="btnSave" type="button">Save Invoice</button>
+      <button class="btn danger" id="btnClear" type="button">Clear Invoice</button>
+      <button class="btn" id="btnPrint" type="button">🖨 Print</button>
+      <button class="btn primary" id="btnPdf" type="button">⬇ Download PDF</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- ================= EDITOR ================= -->
+    <section class="editor" id="editor" aria-label="Invoice editor">
+
+      <details class="section" open>
+        <summary>Template &amp; Design</summary>
+        <div class="section-body">
+          <div class="subhead">Template</div>
+          <div class="template-choices" id="templateChoices"></div>
+
+          <div class="subhead">Accent Color</div>
+          <div class="swatches" id="colorSwatches"></div>
+          <div class="field" style="margin-top:8px;">
+            <label for="customColor">Custom color</label>
+            <input type="color" id="customColor" value="#2454ff" style="width:60px;height:32px;padding:2px;cursor:pointer;">
+          </div>
+
+          <div class="subhead">Text Size</div>
+          <div class="field">
+            <select id="fontSizeSelect">
+              <option value="small">Small</option>
+              <option value="normal" selected>Normal</option>
+              <option value="large">Large</option>
+            </select>
+          </div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>Business Information</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="bizLogo">Logo</label>
+            <div class="logo-upload">
+              <div class="logo-preview" id="logoPreview">No logo</div>
+              <input type="file" id="bizLogo" accept="image/*">
+              <button type="button" class="icon-btn" id="removeLogoBtn" title="Remove logo">✕</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="bizName">Business / Sender Name</label>
+            <input type="text" id="bizName" data-path="business.name" data-required="true">
+            <div class="field-error">Business name is required.</div>
+          </div>
+          <div class="field">
+            <label for="bizAddress">Business Address</label>
+            <textarea id="bizAddress" data-path="business.address"></textarea>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="bizEmail">Email</label>
+              <input type="email" id="bizEmail" data-path="business.email">
+            </div>
+            <div class="field">
+              <label for="bizPhone">Phone</label>
+              <input type="tel" id="bizPhone" data-path="business.phone">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="bizWebsite">Website</label>
+              <input type="text" id="bizWebsite" data-path="business.website">
+            </div>
+            <div class="field">
+              <label for="bizTaxId">Tax ID</label>
+              <input type="text" id="bizTaxId" data-path="business.taxId">
+            </div>
+          </div>
+          <div class="subhead">Show on invoice</div>
+          <div class="show-toggles" id="bizShowToggles"></div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>Client Information</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="cliName">Client Name</label>
+            <input type="text" id="cliName" data-path="client.name" data-required="true">
+            <div class="field-error">Client name is required.</div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="cliCompany">Company</label>
+              <input type="text" id="cliCompany" data-path="client.company">
+            </div>
+            <div class="field">
+              <label for="cliTaxId">Tax ID</label>
+              <input type="text" id="cliTaxId" data-path="client.taxId">
+            </div>
+          </div>
+          <div class="field">
+            <label for="cliAddress">Address</label>
+            <textarea id="cliAddress" data-path="client.address"></textarea>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="cliEmail">Email</label>
+              <input type="email" id="cliEmail" data-path="client.email">
+            </div>
+            <div class="field">
+              <label for="cliPhone">Phone</label>
+              <input type="tel" id="cliPhone" data-path="client.phone">
+            </div>
+          </div>
+          <div class="subhead">Show on invoice</div>
+          <div class="show-toggles" id="cliShowToggles"></div>
+          <div class="subhead">Custom Fields</div>
+          <div id="cliCustomFields"></div>
+          <button type="button" class="add-link" id="addCliField">+ Add custom client field</button>
+        </div>
+      </details>
+
+      <details class="section" open>
+        <summary>Invoice Information</summary>
+        <div class="section-body">
+          <div class="row2">
+            <div class="field">
+              <label for="invNumber">Invoice Number</label>
+              <input type="text" id="invNumber" data-path="invoice.number" data-required="true">
+              <div class="field-error">Invoice number is required.</div>
+            </div>
+            <div class="field">
+              <label for="invStatus">Status</label>
+              <select id="invStatus" data-path="meta.status.value">
+                <option value="draft">Draft</option>
+                <option value="unpaid">Unpaid</option>
+                <option value="paid">Paid</option>
+                <option value="partially-paid">Partially Paid</option>
+                <option value="overdue">Overdue</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          <div class="checkline">
+            <input type="checkbox" id="invStatusShow" data-path="meta.status.show">
+            <label for="invStatusShow" style="margin:0;">Show status badge on invoice</label>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="invDate">Invoice Date</label>
+              <input type="date" id="invDate" data-path="invoice.date" data-required="true">
+              <div class="field-error">Invoice date is required.</div>
+            </div>
+            <div class="field">
+              <label for="invDueDate">Due Date</label>
+              <input type="date" id="invDueDate" data-path="invoice.dueDate">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="invTerms">Payment Terms</label>
+              <input type="text" id="invTerms" data-path="invoice.paymentTerms" placeholder="e.g. Net 15">
+            </div>
+            <div class="field">
+              <label for="invRef">Reference Number</label>
+              <input type="text" id="invRef" data-path="invoice.reference">
+            </div>
+          </div>
+          <div class="field">
+            <label for="invPO">Purchase Order Number</label>
+            <input type="text" id="invPO" data-path="invoice.poNumber">
+          </div>
+          <div class="subhead">Custom Fields</div>
+          <div id="invCustomFields"></div>
+          <button type="button" class="add-link" id="addInvField">+ Add custom invoice field</button>
+        </div>
+      </details>
+
+      <details class="section" open>
+        <summary>Line Items</summary>
+        <div class="section-body">
+          <div class="field-error" id="itemsError" style="display:none;">At least one line item is required.</div>
+          <div class="subhead">Extra columns (applies to all items)</div>
+          <div id="extraColTags"></div>
+          <div class="custom-field-row">
+            <input type="text" id="newExtraColName" placeholder="Column name, e.g. Date">
+            <button type="button" class="btn small" id="addExtraColBtn">Add</button>
+          </div>
+          <hr class="sep">
+          <div id="itemsContainer"></div>
+          <button type="button" class="add-link" id="addItemBtn">+ Add Line Item</button>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>Currency</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="currencySelect">Currency</label>
+            <select id="currencySelect"></select>
+          </div>
+          <div id="customCurrencyFields" style="display:none;">
+            <div class="row3">
+              <div class="field">
+                <label for="curSymbol">Symbol</label>
+                <input type="text" id="curSymbol" maxlength="4">
+              </div>
+              <div class="field">
+                <label for="curCode">Code</label>
+                <input type="text" id="curCode" maxlength="6" style="text-transform:uppercase;">
+              </div>
+              <div class="field">
+                <label for="curDecimals">Decimals</label>
+                <select id="curDecimals">
+                  <option value="0">0</option>
+                  <option value="2" selected>2</option>
+                  <option value="3">3</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>Totals: Discount, Taxes &amp; Fees</summary>
+        <div class="section-body">
+          <div class="subhead">Discount</div>
+          <div class="charge-row" style="grid-template-columns:1fr 90px 1fr auto auto;">
+            <span style="font-size:.82rem;color:var(--ui-muted);">Discount</span>
+            <select id="discountType">
+              <option value="percent">%</option>
+              <option value="fixed">Fixed</option>
+            </select>
+            <input type="number" id="discountValue" min="0" step="0.01" value="0">
+            <span></span><span></span>
+          </div>
+          <hr class="sep">
+          <div class="subhead">Taxes, Fees &amp; Custom Totals</div>
+          <div id="chargesContainer"></div>
+          <button type="button" class="add-link" id="addChargeBtn">+ Add Tax / Fee / Custom Total</button>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>Payment Information</summary>
+        <div class="section-body">
+          <div class="row2">
+            <div class="field">
+              <label for="payBank">Bank Name</label>
+              <input type="text" id="payBank" data-path="payment.bankName">
+            </div>
+            <div class="field">
+              <label for="payAcctName">Account Name</label>
+              <input type="text" id="payAcctName" data-path="payment.accountName">
+            </div>
+          </div>
+          <div class="field">
+            <label for="payAcctNum">Account Number</label>
+            <input type="text" id="payAcctNum" data-path="payment.accountNumber">
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="payPaypal">PayPal</label>
+              <input type="text" id="payPaypal" data-path="payment.paypal">
+            </div>
+            <div class="field">
+              <label for="payGcash">GCash</label>
+              <input type="text" id="payGcash" data-path="payment.gcash">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="payWise">Wise</label>
+              <input type="text" id="payWise" data-path="payment.wise">
+            </div>
+            <div class="field">
+              <label for="payOther">Other Method</label>
+              <input type="text" id="payOther" data-path="payment.other">
+            </div>
+          </div>
+          <div class="field">
+            <label for="payInstructions">Additional Instructions</label>
+            <textarea id="payInstructions" data-path="payment.customInstructions"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>Notes &amp; Terms</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="notesField">Notes</label>
+            <textarea id="notesField" data-path="notes"></textarea>
+          </div>
+          <div class="field">
+            <label for="termsField">Terms &amp; Conditions</label>
+            <textarea id="termsField" data-path="terms"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>Labels &amp; Footer</summary>
+        <div class="section-body">
+          <div class="row2">
+            <div class="field">
+              <label for="lblInvoiceTitle">Invoice Title</label>
+              <input type="text" id="lblInvoiceTitle" data-path="labels.invoiceTitle">
+            </div>
+            <div class="field">
+              <label for="lblBillTo">"Bill To" label</label>
+              <input type="text" id="lblBillTo" data-path="labels.billToLabel">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="lblFrom">"From" label</label>
+              <input type="text" id="lblFrom" data-path="labels.fromLabel">
+            </div>
+            <div class="field">
+              <label for="lblNotes">Notes section label</label>
+              <input type="text" id="lblNotes" data-path="labels.notesLabel">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="lblTerms">Terms section label</label>
+              <input type="text" id="lblTerms" data-path="labels.termsLabel">
+            </div>
+            <div class="field">
+              <label for="lblPayment">Payment section label</label>
+              <input type="text" id="lblPayment" data-path="labels.paymentLabel">
+            </div>
+          </div>
+          <div class="field">
+            <label for="lblThankYou">Thank-you / footer message</label>
+            <input type="text" id="lblThankYou" data-path="labels.thankYouMessage">
+          </div>
+          <div class="field">
+            <label for="footerText">Additional footer text</label>
+            <textarea id="footerText" data-path="footer"></textarea>
+          </div>
+        </div>
+      </details>
+
+    </section>
+
+    <!-- ================= PREVIEW ================= -->
+    <section class="previewPane" aria-label="Invoice preview">
+      <div class="previewScroll">
+        <div id="invoicePreview" class="invoice-doc template-classic" role="document"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   DATA MODEL
+   ============================================================ */
+const CURRENCIES = [
+  {code:'USD',symbol:'$',decimals:2,label:'USD - US Dollar'},
+  {code:'PHP',symbol:'₱',decimals:2,label:'PHP - Philippine Peso'},
+  {code:'EUR',symbol:'€',decimals:2,label:'EUR - Euro'},
+  {code:'GBP',symbol:'£',decimals:2,label:'GBP - British Pound'},
+  {code:'CAD',symbol:'C$',decimals:2,label:'CAD - Canadian Dollar'},
+  {code:'AUD',symbol:'A$',decimals:2,label:'AUD - Australian Dollar'},
+  {code:'SGD',symbol:'S$',decimals:2,label:'SGD - Singapore Dollar'},
+  {code:'JPY',symbol:'¥',decimals:0,label:'JPY - Japanese Yen'},
+  {code:'CUSTOM',symbol:'$',decimals:2,label:'Custom Currency…'}
+];
+
+const ACCENT_SWATCHES = ['#2454ff','#0f9d58','#7c3aed','#111827','#d1453b','#c2410c','#0891b2'];
+
+const STORAGE_KEY = 'invoiceGeneratorData_v1';
+
+function uid(prefix){ return (prefix||'id') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function defaultData(){
+  return {
+    meta:{
+      template:'classic',
+      accentColor:'#2454ff',
+      fontSize:'normal',
+      currency:{code:'USD',symbol:'$',decimals:2},
+      status:{value:'unpaid', show:true}
+    },
+    business:{
+      name:'', address:'', email:'', phone:'', website:'', taxId:'', logo:null,
+      show:{name:true,address:true,email:true,phone:true,website:true,taxId:true,logo:true}
+    },
+    client:{
+      name:'', company:'', address:'', email:'', phone:'', taxId:'',
+      show:{name:true,company:true,address:true,email:true,phone:true,taxId:true},
+      customFields:[]
+    },
+    invoice:{
+      number:'', date:'', dueDate:'', paymentTerms:'', reference:'', poNumber:'',
+      customFields:[]
+    },
+    extraColumns:[], // [{id,label}]
+    items:[],
+    totals:{
+      discount:{type:'percent', value:0},
+      charges:[] // {id,label,kind:'tax'|'fee'|'custom', calcType:'percent'|'fixed', value, affectsTotal:true}
+    },
+    labels:{
+      invoiceTitle:'INVOICE',
+      fromLabel:'From',
+      billToLabel:'Bill To',
+      notesLabel:'Notes',
+      termsLabel:'Terms & Conditions',
+      paymentLabel:'Payment Information',
+      thankYouMessage:'Thank you for your business!'
+    },
+    payment:{ bankName:'', accountName:'', accountNumber:'', paypal:'', gcash:'', wise:'', other:'', customInstructions:'' },
+    notes:'',
+    terms:''
+  };
+}
+
+function newItem(overrides){
+  return Object.assign({
+    id: uid('item'),
+    description:'',
+    billingType:'hour',
+    hours:0, days:0, weeks:0, qty:0, rate:0, unitPrice:0, amount:0,
+    customLabel:'Units', customUnit:'', customMode:'auto', // auto | manual
+    extra:{}
+  }, overrides||{});
+}
+
+function sampleData(){
+  const d = defaultData();
+  d.business.name = 'ABC Virtual Services';
+  d.business.address = '123 Makati Avenue, Makati City, Philippines';
+  d.business.email = 'hello@abcvirtual.com';
+  d.business.phone = '+63 917 000 0000';
+  d.business.website = 'www.abcvirtual.com';
+  d.business.taxId = '000-000-000-000';
+  d.client.name = 'John Smith';
+  d.client.company = 'Smith Consulting LLC';
+  d.client.address = '500 Market Street, Suite 12, San Francisco, CA 94105';
+  d.client.email = 'john@smithconsulting.com';
+  d.client.phone = '+1 415 555 0134';
+  d.invoice.number = 'INV-001';
+  const today = new Date();
+  const due = new Date(); due.setDate(due.getDate()+15);
+  d.invoice.date = today.toISOString().slice(0,10);
+  d.invoice.dueDate = due.toISOString().slice(0,10);
+  d.invoice.paymentTerms = 'Net 15';
+  d.items = [
+    newItem({description:'Virtual Assistant Services', billingType:'hour', hours:20, rate:8}),
+    newItem({description:'Weekly Social Media Management', billingType:'week', weeks:2, rate:120}),
+    newItem({description:'Website Maintenance', billingType:'fixed', amount:150})
+  ];
+  d.totals.charges = [
+    {id:uid('chg'), label:'VAT', kind:'tax', calcType:'percent', value:5, affectsTotal:true}
+  ];
+  d.payment.bankName = 'BDO Unibank';
+  d.payment.accountName = 'ABC Virtual Services';
+  d.payment.accountNumber = '0012 3456 7890';
+  d.payment.paypal = 'pay@abcvirtual.com';
+  d.notes = 'Please review the invoice and reach out with any questions.';
+  d.terms = 'Payment is due within 15 days of the invoice date. Late payments may incur a 2% monthly fee.';
+  return d;
+}
+
+let invoiceData = sampleData();
+
+/* ============================================================
+   PATH GET/SET HELPERS
+   ============================================================ */
+function getPath(obj, path){
+  return path.split('.').reduce((o,k)=> (o==null?undefined:o[k]), obj);
+}
+function setPath(obj, path, value){
+  const parts = path.split('.');
+  let cur = obj;
+  for(let i=0;i<parts.length-1;i++){
+    cur = cur[parts[i]];
+  }
+  cur[parts[parts.length-1]] = value;
+}
+
+/* ============================================================
+   FORMATTING
+   ============================================================ */
+function formatMoney(num){
+  const c = invoiceData.meta.currency;
+  const decimals = (c.decimals===0 || c.decimals) ? c.decimals : 2;
+  let n = Number(num);
+  if(isNaN(n)) n = 0;
+  const neg = n < 0;
+  n = Math.abs(n);
+  const fixed = n.toFixed(decimals);
+  const parts = fixed.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const numStr = decimals>0 ? parts.join('.') : parts[0];
+  return (neg?'-':'') + c.symbol + numStr;
+}
+function esc(str){
+  if(str===undefined||str===null) return '';
+  return String(str).replace(/[&<>"']/g, function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+function nl2br(str){ return esc(str).replace(/\n/g,'<br>'); }
+function formatDate(iso){
+  if(!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+}
+
+/* ============================================================
+   CALCULATIONS
+   ============================================================ */
+function num(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+
+function calculateLineItem(item){
+  switch(item.billingType){
+    case 'hour': return num(item.hours) * num(item.rate);
+    case 'day': return num(item.days) * num(item.rate);
+    case 'week': return num(item.weeks) * num(item.rate);
+    case 'peritem': return num(item.qty) * num(item.unitPrice);
+    case 'fixed': return num(item.amount);
+    case 'project': return num(item.amount);
+    case 'custom':
+      if(item.customMode === 'manual') return num(item.amount);
+      return num(item.qty) * num(item.rate);
+    default: return 0;
+  }
+}
+
+function itemDetailText(item){
+  switch(item.billingType){
+    case 'hour': return num(item.hours) + ' hrs × ' + formatMoney(num(item.rate)) + '/hr';
+    case 'day': return num(item.days) + ' days × ' + formatMoney(num(item.rate)) + '/day';
+    case 'week': return num(item.weeks) + ' wks × ' + formatMoney(num(item.rate)) + '/wk';
+    case 'peritem': return num(item.qty) + ' × ' + formatMoney(num(item.unitPrice));
+    case 'fixed': return 'Fixed price';
+    case 'project': return 'Project';
+    case 'custom':
+      if(item.customMode==='manual') return item.customLabel || 'Custom';
+      return num(item.qty) + (item.customUnit? ' '+item.customUnit:'') + ' × ' + formatMoney(num(item.rate));
+    default: return '';
+  }
+}
+
+function calculateSubtotal(){
+  return invoiceData.items.reduce((sum,it)=> sum + calculateLineItem(it), 0);
+}
+
+function calculateDiscountAmount(subtotal){
+  const d = invoiceData.totals.discount;
+  if(!d || !d.value) return 0;
+  return d.type === 'percent' ? subtotal * (num(d.value)/100) : num(d.value);
+}
+
+function calculateCharges(baseAmount){
+  return invoiceData.totals.charges.map(c=>{
+    const amt = c.calcType === 'percent' ? baseAmount * (num(c.value)/100) : num(c.value);
+    return Object.assign({}, c, {amount:amt});
+  });
+}
+
+function calculateTotals(){
+  const subtotal = calculateSubtotal();
+  const discountAmount = calculateDiscountAmount(subtotal);
+  const afterDiscount = subtotal - discountAmount;
+  const charges = calculateCharges(afterDiscount);
+  const chargesTotal = charges.reduce((s,c)=> s + (c.affectsTotal ? c.amount : 0), 0);
+  const grandTotal = afterDiscount + chargesTotal;
+  return { subtotal, discountAmount, afterDiscount, charges, grandTotal };
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let toastTimer=null;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2400);
+}
+
+/* ============================================================
+   RENDER: STATIC-BOUND FIELDS (data-path inputs)
+   ============================================================ */
+function bindStaticFields(){
+  document.querySelectorAll('[data-path]').forEach(el=>{
+    el.addEventListener(el.tagName==='SELECT' || el.type==='checkbox' || el.type==='date' ? 'change' : 'input', function(){
+      const path = el.getAttribute('data-path');
+      let val;
+      if(el.type === 'checkbox') val = el.checked;
+      else val = el.value;
+      setPath(invoiceData, path, val);
+      if(el.hasAttribute('data-required')) validateField(el);
+      updatePreview();
+    });
+  });
+}
+
+function populateStaticFields(){
+  document.querySelectorAll('[data-path]').forEach(el=>{
+    const path = el.getAttribute('data-path');
+    const val = getPath(invoiceData, path);
+    if(el.type === 'checkbox') el.checked = !!val;
+    else el.value = (val===undefined||val===null) ? '' : val;
+  });
+}
+
+/* ============================================================
+   VALIDATION
+   ============================================================ */
+function validateField(el){
+  const path = el.getAttribute('data-path');
+  const val = getPath(invoiceData, path);
+  const fieldWrap = el.closest('.field');
+  const ok = val !== undefined && val !== null && String(val).trim() !== '';
+  if(fieldWrap) fieldWrap.classList.toggle('error', !ok);
+  return ok;
+}
+
+function validateInvoice(){
+  let valid = true;
+  document.querySelectorAll('[data-required]').forEach(el=>{
+    if(!validateField(el)) valid = false;
+  });
+  const itemsErr = document.getElementById('itemsError');
+  if(invoiceData.items.length === 0){
+    itemsErr.style.display = 'block';
+    valid = false;
+  } else {
+    itemsErr.style.display = 'none';
+  }
+  if(!valid){
+    const firstError = document.querySelector('.field.error, #itemsError[style*="block"]');
+    if(firstError){
+      firstError.scrollIntoView({behavior:'smooth', block:'center'});
+      const input = firstError.querySelector('input,select,textarea');
+      if(input) input.focus();
+    }
+    showToast('Please fix the highlighted fields.');
+  }
+  return valid;
+}
+
+/* ============================================================
+   TEMPLATE & COLOR PICKERS
+   ============================================================ */
+function renderTemplateChoices(){
+  const wrap = document.getElementById('templateChoices');
+  const templates = [
+    {id:'classic', label:'Classic'},
+    {id:'modern', label:'Modern'},
+    {id:'minimal', label:'Minimal'}
+  ];
+  wrap.innerHTML = templates.map(t=>
+    '<button type="button" class="template-choice'+(invoiceData.meta.template===t.id?' active':'')+'" data-tpl="'+t.id+'">'
+    + '<div class="swatch-bar"></div>' + t.label + '</button>'
+  ).join('');
+  wrap.querySelectorAll('.template-choice').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      invoiceData.meta.template = btn.getAttribute('data-tpl');
+      renderTemplateChoices();
+      updatePreview();
+    });
+  });
+}
+
+function renderColorSwatches(){
+  const wrap = document.getElementById('colorSwatches');
+  wrap.innerHTML = ACCENT_SWATCHES.map(c=>
+    '<button type="button" class="swatch'+(invoiceData.meta.accentColor.toLowerCase()===c.toLowerCase()?' active':'')+'" style="background:'+c+'" data-color="'+c+'" aria-label="Accent color '+c+'"></button>'
+  ).join('');
+  wrap.querySelectorAll('.swatch').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      invoiceData.meta.accentColor = btn.getAttribute('data-color');
+      document.getElementById('customColor').value = invoiceData.meta.accentColor;
+      renderColorSwatches();
+      updatePreview();
+    });
+  });
+  document.getElementById('customColor').value = invoiceData.meta.accentColor;
+}
+
+/* ============================================================
+   SHOW/HIDE TOGGLES (business / client)
+   ============================================================ */
+function renderShowToggles(containerId, dataObj, fieldsMap){
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = Object.keys(fieldsMap).map(key=>{
+    const cbId = containerId + '_' + key;
+    return '<label class="checkline" for="'+cbId+'"><input type="checkbox" id="'+cbId+'" data-key="'+key+'" '+(dataObj.show[key]?'checked':'')+'>'+fieldsMap[key]+'</label>';
+  }).join('');
+  wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      dataObj.show[cb.getAttribute('data-key')] = cb.checked;
+      updatePreview();
+    });
+  });
+}
+
+/* ============================================================
+   LOGO
+   ============================================================ */
+function renderLogoPreview(){
+  const wrap = document.getElementById('logoPreview');
+  if(invoiceData.business.logo){
+    wrap.innerHTML = '<img src="'+invoiceData.business.logo+'" alt="Business logo">';
+  } else {
+    wrap.innerHTML = 'No logo';
+  }
+}
+document.getElementById('bizLogo').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    invoiceData.business.logo = ev.target.result;
+    renderLogoPreview();
+    updatePreview();
+  };
+  reader.readAsDataURL(file);
+});
+document.getElementById('removeLogoBtn').addEventListener('click', function(){
+  invoiceData.business.logo = null;
+  document.getElementById('bizLogo').value = '';
+  renderLogoPreview();
+  updatePreview();
+});
+
+/* ============================================================
+   CUSTOM FIELD LISTS (client / invoice)
+   ============================================================ */
+function renderCustomFieldList(containerId, list, onChange){
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = list.map(f=>
+    '<div class="custom-field-row" data-id="'+f.id+'">'
+    + '<input type="text" class="cf-label" placeholder="Label" value="'+esc(f.label)+'">'
+    + '<input type="text" class="cf-value" placeholder="Value" value="'+esc(f.value)+'">'
+    + '<button type="button" class="icon-btn cf-remove" title="Remove">✕</button>'
+    + '</div>'
+  ).join('');
+  wrap.querySelectorAll('.custom-field-row').forEach(row=>{
+    const id = row.getAttribute('data-id');
+    const item = list.find(f=>f.id===id);
+    row.querySelector('.cf-label').addEventListener('input', function(){ item.label = this.value; onChange(); });
+    row.querySelector('.cf-value').addEventListener('input', function(){ item.value = this.value; onChange(); });
+    row.querySelector('.cf-remove').addEventListener('click', function(){
+      const idx = list.findIndex(f=>f.id===id);
+      list.splice(idx,1);
+      renderCustomFieldList(containerId, list, onChange);
+      onChange();
+    });
+  });
+}
+
+document.getElementById('addCliField').addEventListener('click', function(){
+  invoiceData.client.customFields.push({id:uid('cf'), label:'', value:''});
+  renderCustomFieldList('cliCustomFields', invoiceData.client.customFields, updatePreview);
+  updatePreview();
+});
+document.getElementById('addInvField').addEventListener('click', function(){
+  invoiceData.invoice.customFields.push({id:uid('cf'), label:'', value:''});
+  renderCustomFieldList('invCustomFields', invoiceData.invoice.customFields, updatePreview);
+  updatePreview();
+});
+
+/* ============================================================
+   CURRENCY
+   ============================================================ */
+function renderCurrencySelect(){
+  const sel = document.getElementById('currencySelect');
+  sel.innerHTML = CURRENCIES.map(c=> '<option value="'+c.code+'">'+c.label+'</option>').join('');
+  const isCustom = !CURRENCIES.some(c=> c.code === invoiceData.meta.currency.code) || invoiceData.meta.currency.code==='CUSTOM';
+  sel.value = isCustom ? 'CUSTOM' : invoiceData.meta.currency.code;
+  toggleCustomCurrency();
+}
+function toggleCustomCurrency(){
+  const isCustom = document.getElementById('currencySelect').value === 'CUSTOM';
+  document.getElementById('customCurrencyFields').style.display = isCustom ? 'block' : 'none';
+  if(isCustom){
+    document.getElementById('curSymbol').value = invoiceData.meta.currency.symbol || '$';
+    document.getElementById('curCode').value = invoiceData.meta.currency.code === 'CUSTOM' ? '' : invoiceData.meta.currency.code;
+    document.getElementById('curDecimals').value = String(invoiceData.meta.currency.decimals ?? 2);
+  }
+}
+document.getElementById('currencySelect').addEventListener('change', function(){
+  if(this.value === 'CUSTOM'){
+    toggleCustomCurrency();
+    invoiceData.meta.currency = {code: document.getElementById('curCode').value || 'CUSTOM', symbol: document.getElementById('curSymbol').value || '$', decimals: Number(document.getElementById('curDecimals').value)};
+  } else {
+    const found = CURRENCIES.find(c=>c.code===this.value);
+    invoiceData.meta.currency = {code:found.code, symbol:found.symbol, decimals:found.decimals};
+    toggleCustomCurrency();
+  }
+  updatePreview();
+});
+['curSymbol','curCode','curDecimals'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', function(){
+    invoiceData.meta.currency = {
+      code: (document.getElementById('curCode').value || 'CUSTOM').toUpperCase(),
+      symbol: document.getElementById('curSymbol').value || '$',
+      decimals: Number(document.getElementById('curDecimals').value)
+    };
+    updatePreview();
+  });
+});
+
+/* ============================================================
+   EXTRA COLUMNS (custom line-item fields, global)
+   ============================================================ */
+function renderExtraColTags(){
+  const wrap = document.getElementById('extraColTags');
+  if(invoiceData.extraColumns.length===0){ wrap.innerHTML = '<div class="hint">No extra columns added yet.</div>'; return; }
+  wrap.innerHTML = invoiceData.extraColumns.map(c=>
+    '<span class="extra-col-tag">'+esc(c.label)+'<button type="button" data-id="'+c.id+'" aria-label="Remove column '+esc(c.label)+'">✕</button></span>'
+  ).join('');
+  wrap.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const id = this.getAttribute('data-id');
+      invoiceData.extraColumns = invoiceData.extraColumns.filter(c=>c.id!==id);
+      renderExtraColTags();
+      renderItemsEditor();
+      updatePreview();
+    });
+  });
+}
+document.getElementById('addExtraColBtn').addEventListener('click', function(){
+  const input = document.getElementById('newExtraColName');
+  const name = input.value.trim();
+  if(!name) return;
+  invoiceData.extraColumns.push({id:uid('col'), label:name});
+  input.value = '';
+  renderExtraColTags();
+  renderItemsEditor();
+  updatePreview();
+});
+
+/* ============================================================
+   LINE ITEMS EDITOR
+   ============================================================ */
+const BILLING_TYPES = [
+  {value:'fixed', label:'Fixed Price'},
+  {value:'hour', label:'Per Hour'},
+  {value:'day', label:'Per Day'},
+  {value:'week', label:'Per Week'},
+  {value:'peritem', label:'Per Item'},
+  {value:'project', label:'Per Project'},
+  {value:'custom', label:'Custom'}
+];
+
+let dragSourceId = null;
+
+function itemFieldsHTML(item){
+  switch(item.billingType){
+    case 'hour':
+      return '<div class="row2">'
+        + fieldNum('hours','Hours', item.hours)
+        + fieldNum('rate','Hourly Rate', item.rate)
+        + '</div>';
+    case 'day':
+      return '<div class="row2">'
+        + fieldNum('days','Days', item.days)
+        + fieldNum('rate','Daily Rate', item.rate)
+        + '</div>';
+    case 'week':
+      return '<div class="row2">'
+        + fieldNum('weeks','Weeks', item.weeks)
+        + fieldNum('rate','Weekly Rate', item.rate)
+        + '</div>';
+    case 'peritem':
+      return '<div class="row2">'
+        + fieldNum('qty','Quantity', item.qty)
+        + fieldNum('unitPrice','Unit Price', item.unitPrice)
+        + '</div>';
+    case 'fixed':
+      return fieldNum('amount','Amount', item.amount);
+    case 'project':
+      return fieldNum('amount','Project Amount', item.amount);
+    case 'custom':
+      return '<div class="row2">'
+        + fieldText('customLabel','Label', item.customLabel)
+        + '<div class="field"><label>Calculation</label><select class="itemfield" data-field="customMode"><option value="auto"'+(item.customMode==='auto'?' selected':'')+'>Automatic (Qty × Rate)</option><option value="manual"'+(item.customMode==='manual'?' selected':'')+'>Manual Amount</option></select></div>'
+        + '</div>'
+        + (item.customMode==='auto'
+            ? '<div class="row3">'+fieldNum('qty','Quantity', item.qty)+fieldText('customUnit','Unit', item.customUnit)+fieldNum('rate','Rate', item.rate)+'</div>'
+            : fieldNum('amount','Amount', item.amount));
+    default: return '';
+  }
+  function fieldNum(field,label,val){
+    return '<div class="field"><label>'+label+'</label><input type="number" step="0.01" min="0" class="itemfield" data-field="'+field+'" value="'+(val===undefined?0:val)+'"></div>';
+  }
+  function fieldText(field,label,val){
+    return '<div class="field"><label>'+label+'</label><input type="text" class="itemfield" data-field="'+field+'" value="'+esc(val||'')+'"></div>';
+  }
+}
+
+function extraColsHTML(item){
+  if(invoiceData.extraColumns.length===0) return '';
+  return '<div class="subhead" style="margin-top:10px;">Extra fields</div><div class="row2">' + invoiceData.extraColumns.map(c=>
+    '<div class="field"><label>'+esc(c.label)+'</label><input type="text" class="itemextra" data-col="'+c.id+'" value="'+esc(item.extra[c.id]||'')+'"></div>'
+  ).join('') + '</div>';
+}
+
+function renderItemsEditor(){
+  const wrap = document.getElementById('itemsContainer');
+  wrap.innerHTML = invoiceData.items.map((item, idx)=>
+    '<div class="item-card" draggable="true" data-id="'+item.id+'">'
+    + '<div class="item-card-head">'
+      + '<span class="drag-handle" title="Drag to reorder">⠿</span>'
+      + '<span class="item-index">Item '+(idx+1)+'</span>'
+      + '<button type="button" class="icon-btn" data-action="up" title="Move up" '+(idx===0?'disabled':'')+'>↑</button>'
+      + '<button type="button" class="icon-btn" data-action="down" title="Move down" '+(idx===invoiceData.items.length-1?'disabled':'')+'>↓</button>'
+      + '<button type="button" class="icon-btn" data-action="dup" title="Duplicate">⎘</button>'
+      + '<button type="button" class="icon-btn" data-action="del" title="Delete">🗑</button>'
+    + '</div>'
+    + '<div class="item-card-body">'
+      + '<div class="field"><label>Description</label><input type="text" class="itemfield" data-field="description" value="'+esc(item.description)+'" placeholder="e.g. Virtual Assistant Services"></div>'
+      + '<div class="field"><label>Billing Type</label><select class="itemfield" data-field="billingType">'
+        + BILLING_TYPES.map(bt=>'<option value="'+bt.value+'"'+(item.billingType===bt.value?' selected':'')+'>'+bt.label+'</option>').join('')
+      + '</select></div>'
+      + '<div class="item-fields-dynamic">' + itemFieldsHTML(item) + '</div>'
+      + extraColsHTML(item)
+      + '<div class="item-amount-display">Amount: ' + formatMoney(calculateLineItem(item)) + '</div>'
+    + '</div>'
+    + '</div>'
+  ).join('');
+
+  wrap.querySelectorAll('.item-card').forEach(card=>{
+    const id = card.getAttribute('data-id');
+    const item = invoiceData.items.find(i=>i.id===id);
+
+    card.querySelectorAll('.itemfield').forEach(el=>{
+      const evt = (el.tagName==='SELECT') ? 'change' : 'input';
+      el.addEventListener(evt, function(){
+        const field = this.getAttribute('data-field');
+        if(field === 'description' || field === 'customLabel' || field === 'customUnit' || field === 'customMode' || field === 'billingType'){
+          item[field] = this.value;
+        } else {
+          item[field] = this.value;
+        }
+        if(field === 'billingType' || field === 'customMode'){
+          renderItemsEditor();
+        } else {
+          const amtDisplay = card.querySelector('.item-amount-display');
+          if(amtDisplay) amtDisplay.textContent = 'Amount: ' + formatMoney(calculateLineItem(item));
+        }
+        updatePreview();
+      });
+    });
+
+    card.querySelectorAll('.itemextra').forEach(el=>{
+      el.addEventListener('input', function(){
+        item.extra[this.getAttribute('data-col')] = this.value;
+        updatePreview();
+      });
+    });
+
+    card.querySelectorAll('[data-action]').forEach(btn=>{
+      btn.addEventListener('click', function(){
+        const action = this.getAttribute('data-action');
+        const idx = invoiceData.items.findIndex(i=>i.id===id);
+        if(action==='up' && idx>0){
+          [invoiceData.items[idx-1], invoiceData.items[idx]] = [invoiceData.items[idx], invoiceData.items[idx-1]];
+        } else if(action==='down' && idx<invoiceData.items.length-1){
+          [invoiceData.items[idx+1], invoiceData.items[idx]] = [invoiceData.items[idx], invoiceData.items[idx+1]];
+        } else if(action==='dup'){
+          const copy = JSON.parse(JSON.stringify(item));
+          copy.id = uid('item');
+          invoiceData.items.splice(idx+1, 0, copy);
+        } else if(action==='del'){
+          invoiceData.items.splice(idx,1);
+        }
+        renderItemsEditor();
+        updatePreview();
+      });
+    });
+
+    card.addEventListener('dragstart', function(){ dragSourceId = id; card.style.opacity='0.5'; });
+    card.addEventListener('dragend', function(){ card.style.opacity='1'; wrap.querySelectorAll('.item-card').forEach(c=>c.classList.remove('dragover')); });
+    card.addEventListener('dragover', function(e){ e.preventDefault(); card.classList.add('dragover'); });
+    card.addEventListener('dragleave', function(){ card.classList.remove('dragover'); });
+    card.addEventListener('drop', function(e){
+      e.preventDefault();
+      card.classList.remove('dragover');
+      if(!dragSourceId || dragSourceId === id) return;
+      const fromIdx = invoiceData.items.findIndex(i=>i.id===dragSourceId);
+      const toIdx = invoiceData.items.findIndex(i=>i.id===id);
+      const [moved] = invoiceData.items.splice(fromIdx,1);
+      invoiceData.items.splice(toIdx,0,moved);
+      dragSourceId = null;
+      renderItemsEditor();
+      updatePreview();
+    });
+  });
+}
+
+document.getElementById('addItemBtn').addEventListener('click', function(){
+  invoiceData.items.push(newItem({description:''}));
+  renderItemsEditor();
+  updatePreview();
+});
+
+/* ============================================================
+   DISCOUNT / TAX / FEE / CUSTOM TOTALS
+   ============================================================ */
+document.getElementById('discountType').addEventListener('change', function(){
+  invoiceData.totals.discount.type = this.value;
+  updatePreview();
+});
+document.getElementById('discountValue').addEventListener('input', function(){
+  invoiceData.totals.discount.value = Number(this.value) || 0;
+  updatePreview();
+});
+
+function renderCharges(){
+  const wrap = document.getElementById('chargesContainer');
+  const charges = invoiceData.totals.charges;
+  if(charges.length===0){ wrap.innerHTML = '<div class="hint">No taxes, fees, or custom totals added yet.</div>'; return; }
+  wrap.innerHTML = charges.map(c=>
+    '<div class="charge-row" data-id="'+c.id+'">'
+    + '<input type="text" class="chg-label" placeholder="Label (e.g. VAT)" value="'+esc(c.label)+'">'
+    + '<select class="chg-calctype"><option value="percent"'+(c.calcType==='percent'?' selected':'')+'>%</option><option value="fixed"'+(c.calcType==='fixed'?' selected':'')+'>Fixed</option></select>'
+    + '<input type="number" step="0.01" class="chg-value" value="'+c.value+'">'
+    + '<label class="checkline" style="margin:0;white-space:nowrap;"><input type="checkbox" class="chg-affects" '+(c.affectsTotal?'checked':'')+'> Include</label>'
+    + '<button type="button" class="icon-btn chg-remove" title="Remove">✕</button>'
+    + '</div>'
+  ).join('');
+  wrap.querySelectorAll('.charge-row').forEach(row=>{
+    const id = row.getAttribute('data-id');
+    const c = charges.find(x=>x.id===id);
+    row.querySelector('.chg-label').addEventListener('input', function(){ c.label=this.value; updatePreview(); });
+    row.querySelector('.chg-calctype').addEventListener('change', function(){ c.calcType=this.value; updatePreview(); });
+    row.querySelector('.chg-value').addEventListener('input', function(){ c.value=Number(this.value)||0; updatePreview(); });
+    row.querySelector('.chg-affects').addEventListener('change', function(){ c.affectsTotal=this.checked; updatePreview(); });
+    row.querySelector('.chg-remove').addEventListener('click', function(){
+      invoiceData.totals.charges = invoiceData.totals.charges.filter(x=>x.id!==id);
+      renderCharges();
+      updatePreview();
+    });
+  });
+}
+document.getElementById('addChargeBtn').addEventListener('click', function(){
+  invoiceData.totals.charges.push({id:uid('chg'), label:'', kind:'custom', calcType:'percent', value:0, affectsTotal:true});
+  renderCharges();
+  updatePreview();
+});
+
+/* ============================================================
+   PREVIEW RENDERING
+   ============================================================ */
+function buildItemsTableHTML(){
+  const extraCols = invoiceData.extraColumns;
+  let head = '<th>Description</th><th>Detail</th><th class="num">Rate</th><th class="num">Amount</th>';
+  extraCols.forEach(c=> head = '<th>'+esc(c.label)+'</th>' + head );
+  // Put extra columns after description instead for readability
+  head = '<th>Description</th>' + extraCols.map(c=>'<th>'+esc(c.label)+'</th>').join('') + '<th>Detail</th><th class="num">Amount</th>';
+
+  const rows = invoiceData.items.map(item=>{
+    const detail = itemDetailText(item);
+    const extraTds = extraCols.map(c=> '<td>'+esc(item.extra[c.id]||'')+'</td>').join('');
+    return '<tr>'
+      + '<td><div class="item-desc-main">'+esc(item.description||'(no description)')+'</div></td>'
+      + extraTds
+      + '<td><div class="item-desc-sub">'+esc(detail)+'</div></td>'
+      + '<td class="num">'+formatMoney(calculateLineItem(item))+'</td>'
+      + '</tr>';
+  }).join('');
+
+  return '<table class="items-table"><thead><tr>'+head+'</tr></thead><tbody>'+(rows || '<tr><td colspan="'+(3+extraCols.length)+'" style="color:#999;padding:14px 8px;">No line items yet.</td></tr>')+'</tbody></table>';
+}
+
+function buildPartyBlock(title, name, lines){
+  const visibleLines = lines.filter(Boolean);
+  return '<div class="doc-party"><h3>'+esc(title)+'</h3>'
+    + (name? '<div class="pname">'+esc(name)+'</div>' : '')
+    + visibleLines.map(l=>'<div class="pline">'+esc(l)+'</div>').join('')
+    + '</div>';
+}
+
+function updatePreview(){
+  const el = document.getElementById('invoicePreview');
+  const d = invoiceData;
+
+  el.className = 'invoice-doc template-' + d.meta.template + ' fs-' + (d.meta.fontSize==='normal' ? '' : d.meta.fontSize);
+  el.style.setProperty('--doc-accent', d.meta.accentColor);
+
+  // Header — logo + invoice title/number only. Full business details live in the
+  // "From" block below so they are edited and shown in exactly one place.
+  const biz = d.business;
+  const logoHTML = (biz.show.logo && biz.logo) ? '<img src="'+biz.logo+'" alt="'+esc(biz.name||'Business')+' logo">' : '';
+
+  const statusHTML = (d.meta.status.show)
+    ? '<div class="status-badge status-'+d.meta.status.value+'">'+esc(d.meta.status.value.replace('-', ' '))+'</div>' : '';
+
+  const header = ''
+    + '<div class="doc-header">'
+    + '<div class="brand">' + logoHTML + '</div>'
+    + '<div class="doc-title-block">'
+      + '<div class="doc-title">' + esc(d.labels.invoiceTitle || 'INVOICE') + '</div>'
+      + '<div class="doc-meta-line"><b>#</b> ' + esc(d.invoice.number||'—') + '</div>'
+      + (d.invoice.date ? '<div class="doc-meta-line"><b>Date:</b> ' + formatDate(d.invoice.date) + '</div>' : '')
+      + (d.invoice.dueDate ? '<div class="doc-meta-line"><b>Due:</b> ' + formatDate(d.invoice.dueDate) + '</div>' : '')
+      + statusHTML
+    + '</div>'
+    + '</div>';
+
+  // Parties
+  const bizLines = [];
+  if(biz.show.address && biz.address) bizLines.push(biz.address);
+  if(biz.show.email && biz.email) bizLines.push(biz.email);
+  if(biz.show.phone && biz.phone) bizLines.push(biz.phone);
+  if(biz.show.website && biz.website) bizLines.push(biz.website);
+  if(biz.show.taxId && biz.taxId) bizLines.push('Tax ID: ' + biz.taxId);
+
+  const cli = d.client;
+  const cliLines = [];
+  if(cli.show.company && cli.company) cliLines.push(cli.company);
+  if(cli.show.address && cli.address) cliLines.push(cli.address);
+  if(cli.show.email && cli.email) cliLines.push(cli.email);
+  if(cli.show.phone && cli.phone) cliLines.push(cli.phone);
+  if(cli.show.taxId && cli.taxId) cliLines.push('Tax ID: ' + cli.taxId);
+
+  const fromBlock = buildPartyBlock(d.labels.fromLabel || 'From', (biz.show.name?biz.name:''), bizLines);
+  const toBlock = buildPartyBlock(d.labels.billToLabel || 'Bill To', (cli.show.name?cli.name:''), cliLines);
+  const parties = '<div class="doc-parties">' + fromBlock + toBlock + '</div>';
+
+  // Extra invoice/client fields
+  const extraFields = [];
+  (d.invoice.customFields||[]).forEach(f=>{ if(f.label) extraFields.push('<span><b>'+esc(f.label)+':</b> '+esc(f.value)+'</span>'); });
+  if(d.invoice.paymentTerms) extraFields.push('<span><b>Payment Terms:</b> '+esc(d.invoice.paymentTerms)+'</span>');
+  if(d.invoice.reference) extraFields.push('<span><b>Reference:</b> '+esc(d.invoice.reference)+'</span>');
+  if(d.invoice.poNumber) extraFields.push('<span><b>PO #:</b> '+esc(d.invoice.poNumber)+'</span>');
+  (d.client.customFields||[]).forEach(f=>{ if(f.label) extraFields.push('<span><b>'+esc(f.label)+':</b> '+esc(f.value)+'</span>'); });
+  const extraFieldsHTML = extraFields.length ? '<div class="doc-extra-fields">'+extraFields.join('')+'</div>' : '';
+
+  // Items table
+  const itemsTable = buildItemsTableHTML();
+
+  // Totals
+  const t = calculateTotals();
+  let totalsHTML = '<div class="totals-row"><span>Subtotal</span><span>'+formatMoney(t.subtotal)+'</span></div>';
+  if(t.discountAmount){
+    totalsHTML += '<div class="totals-row"><span>Discount'+(d.totals.discount.type==='percent'?' ('+d.totals.discount.value+'%)':'')+'</span><span>-'+formatMoney(t.discountAmount)+'</span></div>';
+  }
+  t.charges.forEach(c=>{
+    if(!c.label && !c.value) return;
+    totalsHTML += '<div class="totals-row"><span>'+esc(c.label||'Charge')+(c.calcType==='percent'?' ('+c.value+'%)':'')+'</span><span>'+(c.affectsTotal?'':'(excl.) ')+formatMoney(c.amount)+'</span></div>';
+  });
+  totalsHTML += '<div class="totals-row grand"><span>Total</span><span>'+formatMoney(t.grandTotal)+'</span></div>';
+  const totalsBlock = '<div class="doc-totals"><div class="totals-box">'+totalsHTML+'</div></div>';
+
+  // Payment info
+  const pay = d.payment;
+  const payItems = [];
+  if(pay.bankName) payItems.push('<span><b>Bank:</b> '+esc(pay.bankName)+'</span>');
+  if(pay.accountName) payItems.push('<span><b>Account Name:</b> '+esc(pay.accountName)+'</span>');
+  if(pay.accountNumber) payItems.push('<span><b>Account #:</b> '+esc(pay.accountNumber)+'</span>');
+  if(pay.paypal) payItems.push('<span><b>PayPal:</b> '+esc(pay.paypal)+'</span>');
+  if(pay.gcash) payItems.push('<span><b>GCash:</b> '+esc(pay.gcash)+'</span>');
+  if(pay.wise) payItems.push('<span><b>Wise:</b> '+esc(pay.wise)+'</span>');
+  if(pay.other) payItems.push('<span><b>Other:</b> '+esc(pay.other)+'</span>');
+  const payHasContent = payItems.length || pay.customInstructions;
+  const paymentBlock = payHasContent ? '<div class="doc-section"><h4>'+esc(d.labels.paymentLabel||'Payment Information')+'</h4>'
+    + (payItems.length? '<div class="payment-grid">'+payItems.join('')+'</div>':'')
+    + (pay.customInstructions? '<p style="margin-top:6px;">'+nl2br(pay.customInstructions)+'</p>':'')
+    + '</div>' : '';
+
+  // Notes / terms
+  const notesBlock = d.notes ? '<div class="doc-section"><h4>'+esc(d.labels.notesLabel||'Notes')+'</h4><p>'+nl2br(d.notes)+'</p></div>' : '';
+  const termsBlock = d.terms ? '<div class="doc-section"><h4>'+esc(d.labels.termsLabel||'Terms & Conditions')+'</h4><p>'+nl2br(d.terms)+'</p></div>' : '';
+
+  // Footer
+  const footerBlock = (d.labels.thankYouMessage || d.footer) ? '<div class="doc-footer">'
+    + (d.labels.thankYouMessage? '<div class="thankyou">'+esc(d.labels.thankYouMessage)+'</div>':'')
+    + (d.footer? '<div>'+nl2br(d.footer)+'</div>':'')
+    + '</div>' : '';
+
+  el.innerHTML = header + parties + extraFieldsHTML + itemsTable + totalsBlock + paymentBlock + notesBlock + termsBlock + footerBlock;
+}
+
+/* ============================================================
+   SAVE / LOAD / CLEAR
+   ============================================================ */
+function saveInvoice(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(invoiceData));
+    showToast('Invoice saved to this browser.');
+  }catch(err){
+    showToast('Could not save: storage may be full.');
+  }
+}
+function loadInvoice(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw){ showToast('No saved invoice found.'); return; }
+  try{
+    invoiceData = JSON.parse(raw);
+    renderAll();
+    showToast('Invoice loaded.');
+  }catch(err){
+    showToast('Saved data could not be read.');
+  }
+}
+function clearInvoice(){
+  if(!confirm('Clear the current invoice? This cannot be undone (unless you have a saved copy).')) return;
+  invoiceData = defaultData();
+  renderAll();
+  showToast('Invoice cleared.');
+}
+
+/* ============================================================
+   PRINT / PDF
+   ============================================================ */
+function printInvoice(){
+  window.print();
+}
+function generatePDF(){
+  if(!validateInvoice()) return;
+  const el = document.getElementById('invoicePreview');
+  const filename = 'Invoice-' + (invoiceData.invoice.number || 'draft').replace(/[^a-z0-9\-_]+/gi,'_') + '.pdf';
+  const btn = document.getElementById('btnPdf');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  const opt = {
+    margin: 0,
+    filename: filename,
+    image: {type:'jpeg', quality:0.98},
+    html2canvas: {scale:2, useCORS:true},
+    jsPDF: {unit:'mm', format:'a4', orientation:'portrait'},
+    pagebreak: {mode:['css','legacy'], avoid:['tr','.doc-totals','.doc-section']}
+  };
+  if(typeof html2pdf === 'undefined'){
+    showToast('PDF library failed to load. Check your internet connection.');
+    btn.disabled = false; btn.textContent = originalText;
+    return;
+  }
+  html2pdf().set(opt).from(el).save().then(()=>{
+    btn.disabled = false; btn.textContent = originalText;
+  }).catch(()=>{
+    showToast('PDF generation failed. Please try again.');
+    btn.disabled = false; btn.textContent = originalText;
+  });
+}
+
+/* ============================================================
+   RENDER ALL / INIT
+   ============================================================ */
+function renderAll(){
+  populateStaticFields();
+  document.getElementById('fontSizeSelect').value = invoiceData.meta.fontSize;
+  renderTemplateChoices();
+  renderColorSwatches();
+  renderShowToggles('bizShowToggles', invoiceData.business, {name:'Name',address:'Address',email:'Email',phone:'Phone',website:'Website',taxId:'Tax ID',logo:'Logo'});
+  renderShowToggles('cliShowToggles', invoiceData.client, {name:'Name',company:'Company',address:'Address',email:'Email',phone:'Phone',taxId:'Tax ID'});
+  renderLogoPreview();
+  renderCustomFieldList('cliCustomFields', invoiceData.client.customFields, updatePreview);
+  renderCustomFieldList('invCustomFields', invoiceData.invoice.customFields, updatePreview);
+  renderExtraColTags();
+  renderItemsEditor();
+  renderCurrencySelect();
+  document.getElementById('discountType').value = invoiceData.totals.discount.type;
+  document.getElementById('discountValue').value = invoiceData.totals.discount.value;
+  renderCharges();
+  updatePreview();
+}
+
+document.getElementById('fontSizeSelect').addEventListener('change', function(){
+  invoiceData.meta.fontSize = this.value;
+  updatePreview();
+});
+
+document.getElementById('btnSave').addEventListener('click', saveInvoice);
+document.getElementById('btnLoad').addEventListener('click', loadInvoice);
+document.getElementById('btnClear').addEventListener('click', clearInvoice);
+document.getElementById('btnPrint').addEventListener('click', printInvoice);
+document.getElementById('btnPdf').addEventListener('click', generatePDF);
+
+bindStaticFields();
+renderAll();
+
+})();
+</script>
+</body>
+</html>
