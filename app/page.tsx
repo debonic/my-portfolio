@@ -90,17 +90,292 @@ const technicalProjects = [
    English strings remain the source keys so React state and routing stay stable. */
 const LANGUAGE_DICTIONARIES: Record<string, Record<string, string>> = {
   es: {
-    "About":"Acerca de","Experience":"Experiencia","Projects":"Proyectos","Technical Projects":"Proyectos técnicos","Skills & Tools":"Habilidades y herramientas","Contact":"Contacto","Language":"Idioma","Dark":"Oscuro","Light":"Claro","Paper":"Papel","Skip to content":"Saltar al contenido","See my work":"Ver mi trabajo","Open Tool":"Abrir herramienta","LIVE TOOL":"HERRAMIENTA EN VIVO","Message":"Mensaje","Email":"Correo electrónico","How I work":"Cómo trabajo","Want to know how I work?":"¿Quieres saber cómo trabajo?","Platforms I work in":"Plataformas en las que trabajo","Systems & Platforms":"Sistemas y plataformas","STR Platforms":"Plataformas STR","STR Operations":"Operaciones STR","STR Operations + Guest Services":"Operaciones STR + atención a huéspedes","Operations + Technology":"Operaciones + tecnología","400+ STR Properties":"Más de 400 propiedades STR","STR Properties":"Propiedades STR","Remote · UTC+8":"Remoto · UTC+8","Philippines · UTC+8 · Remote-Ready":"Filipinas · UTC+8 · Disponible para remoto","AVAILABLE FOR REMOTE PROJECTS · PHILIPPINES":"DISPONIBLE PARA PROYECTOS REMOTOS · FILIPINAS","STR Operations · Philippines · Remote":"Operaciones STR · Filipinas · Remoto","Guest services across 400+ properties.":"Atención a huéspedes en más de 400 propiedades.","Need someone who can operate and build?":"¿Necesitas a alguien que pueda operar y construir?","Operator who likes to build.":"Operador al que le gusta construir.","The builds behind the thinking.":"Los proyectos detrás de las ideas.","Practical projects showing how I use technology to solve real operational problems.":"Proyectos prácticos que muestran cómo uso la tecnología para resolver problemas operativos reales.","The technical side is the extra: I’m self-taught, curious, and always interested in finding a practical way to improve a process.":"La parte técnica es el extra: soy autodidacta, curioso y siempre busco una forma práctica de mejorar un proceso.","PERSONAL PROJECT · NO PUBLIC SCREENSHOT":"PROYECTO PERSONAL · SIN CAPTURA PÚBLICA","PROJECT VISUAL":"VISTA DEL PROYECTO","Your name or company":"Tu nombre o empresa","Something went wrong. Try again.":"Algo salió mal. Inténtalo de nuevo.","Sent. I'll be in touch soon.":"Enviado. Me pondré en contacto contigo pronto.","Years Work Experience":"Años de experiencia laboral","STR OPERATIONS + TECH + AUTOMATION":"OPERACIONES STR + TECNOLOGÍA + AUTOMATIZACIÓN","Comfortable inside the stack.":"Cómodo trabajando dentro de este stack.","I don't just use tools. I build with them.":"No solo uso herramientas. Construyo con ellas.","Operations came first.":"Las operaciones fueron primero.","What do you actually do?":"¿Qué haces realmente?","How do you handle guest communications?":"¿Cómo gestionas la comunicación con los huéspedes?","What does property management mean in your role?":"¿Qué significa la gestión de propiedades en tu trabajo?","How do you use automation and AI?":"¿Cómo usas la automatización y la IA?","What makes you different from a typical VA?":"¿Qué te diferencia de un VA típico?","What technical stuff are you learning?":"¿Qué cosas técnicas estás aprendiendo?","Web & Development":"Web y desarrollo","Design & Productivity":"Diseño y productividad","Infrastructure":"Infraestructura","Communication":"Comunicación","Automation & AI":"Automatización e IA",
-    "Home Server":"Servidor doméstico","n8n Automations":"Automatizaciones con n8n","Custom Web Projects":"Proyectos web personalizados","AI-Assisted Development":"Desarrollo asistido por IA","Raspberry Pi · Embedded Tech":"Raspberry Pi · Tecnología embebida","My Portfolio":"Mi portafolio","Chrome Extension · Internal Tool":"Extensión de Chrome · Herramienta interna","Web Application · Freelancer Tool":"Aplicación web · Herramienta para freelancers","Web Application":"Aplicación web","Invoice Generator":"Generador de facturas","Personal Budget Tracker":"Control de presupuesto personal","STR OpsDesk":"STR OpsDesk",
+
+    "About":"Acerca de",
+    "Experience":"Experiencia",
+    "Projects":"Proyectos",
+    "Technical Projects":"Proyectos técnicos",
+    "Skills & Tools":"Habilidades y herramientas",
+    "Contact":"Contacto",
+    "Language":"Idioma",
+    "Dark":"Oscuro",
+    "Light":"Claro",
+    "Paper":"Papel",
+    "Skip to content":"Saltar al contenido",
+    "See my work":"Ver mi trabajo",
+    "Open Tool":"Abrir herramienta",
+    "LIVE TOOL":"HERRAMIENTA EN VIVO",
+    "Message":"Mensaje",
+    "Email":"Correo electrónico",
+    "How I work":"Cómo trabajo",
+    "Want to know how I work?":"¿Quieres saber cómo trabajo?",
+    "Platforms I work in":"Plataformas en las que trabajo",
+    "Systems & Platforms":"Sistemas y plataformas",
+    "STR Platforms":"Plataformas STR",
+    "STR Operations":"Operaciones STR",
+    "STR Operations + Guest Services":"Operaciones STR + atención a huéspedes",
+    "Operations + Technology":"Operaciones + tecnología",
+    "400+ STR Properties":"Más de 400 propiedades STR",
+    "STR Properties":"Propiedades STR",
+    "Remote · UTC+8":"Remoto · UTC+8",
+    "Philippines · UTC+8 · Remote-Ready":"Filipinas · UTC+8 · Disponible para remoto",
+    "AVAILABLE FOR REMOTE PROJECTS · PHILIPPINES":"DISPONIBLE PARA PROYECTOS REMOTOS · FILIPINAS",
+    "STR Operations · Philippines · Remote":"Operaciones STR · Filipinas · Remoto",
+    "Guest services across 400+ properties.":"Atención a huéspedes en más de 400 propiedades.",
+    "Need someone who can operate and build?":"¿Necesitas a alguien que pueda operar y construir?",
+    "Operator who likes to build.":"Operador al que le gusta construir.",
+    "The builds behind the thinking.":"Los proyectos detrás de las ideas.",
+    "Practical projects showing how I use technology to solve real operational problems.":"Proyectos prácticos que muestran cómo uso la tecnología para resolver problemas operativos reales.",
+    "The technical side is the extra: I’m self-taught, curious, and always interested in finding a practical way to improve a process.":"La parte técnica es el extra: soy autodidacta, curioso y siempre busco una forma práctica de mejorar un proceso.",
+    "PERSONAL PROJECT · NO PUBLIC SCREENSHOT":"PROYECTO PERSONAL · SIN CAPTURA PÚBLICA",
+    "PROJECT VISUAL":"VISTA DEL PROYECTO",
+    "Your name or company":"Tu nombre o empresa",
+    "Something went wrong. Try again.":"Algo salió mal. Inténtalo de nuevo.",
+    "Sent. I'll be in touch soon.":"Enviado. Me pondré en contacto contigo pronto.",
+    "Years Work Experience":"Años de experiencia laboral",
+    "STR OPERATIONS + TECH + AUTOMATION":"OPERACIONES STR + TECNOLOGÍA + AUTOMATIZACIÓN",
+    "Comfortable inside the stack.":"Cómodo trabajando dentro de este stack.",
+    "I don't just use tools. I build with them.":"No solo uso herramientas. Construyo con ellas.",
+    "Operations came first.":"Las operaciones fueron primero.",
+    "What do you actually do?":"¿Qué haces realmente?",
+    "How do you handle guest communications?":"¿Cómo gestionas la comunicación con los huéspedes?",
+    "What does property management mean in your role?":"¿Qué significa la gestión de propiedades en tu trabajo?",
+    "How do you use automation and AI?":"¿Cómo usas la automatización y la IA?",
+    "What makes you different from a typical VA?":"¿Qué te diferencia de un VA típico?",
+    "What technical stuff are you learning?":"¿Qué cosas técnicas estás aprendiendo?",
+    "Web & Development":"Web y desarrollo",
+    "Design & Productivity":"Diseño y productividad",
+    "Infrastructure":"Infraestructura",
+    "Communication":"Comunicación",
+    "Automation & AI":"Automatización e IA",
+    "Home Server":"Servidor doméstico",
+    "n8n Automations":"Automatizaciones con n8n",
+    "Custom Web Projects":"Proyectos web personalizados",
+    "AI-Assisted Development":"Desarrollo asistido por IA",
+    "Raspberry Pi · Embedded Tech":"Raspberry Pi · Tecnología embebida",
+    "My Portfolio":"Mi portafolio",
+    "Chrome Extension · Internal Tool":"Extensión de Chrome · Herramienta interna",
+    "Web Application · Freelancer Tool":"Aplicación web · Herramienta para freelancers",
+    "Web Application":"Aplicación web",
+    "Invoice Generator":"Generador de facturas",
+    "Personal Budget Tracker":"Control de presupuesto personal",
+    "STR OpsDesk":"STR OpsDesk",
   },
   fr: {
-    "About":"À propos","Experience":"Expérience","Projects":"Projets","Technical Projects":"Projets techniques","Skills & Tools":"Compétences et outils","Contact":"Contact","Language":"Langue","Dark":"Sombre","Light":"Clair","Paper":"Papier","Skip to content":"Passer au contenu","See my work":"Voir mon travail","Open Tool":"Ouvrir l’outil","LIVE TOOL":"OUTIL EN LIGNE","Message":"Message","Email":"E-mail","How I work":"Comment je travaille","Want to know how I work?":"Vous voulez savoir comment je travaille ?","Platforms I work in":"Plateformes que j’utilise","Systems & Platforms":"Systèmes et plateformes","STR Platforms":"Plateformes STR","STR Operations":"Opérations STR","STR Operations + Guest Services":"Opérations STR + service client","Operations + Technology":"Opérations + technologie","400+ STR Properties":"400+ propriétés STR","STR Properties":"Propriétés STR","Remote · UTC+8":"À distance · UTC+8","Philippines · UTC+8 · Remote-Ready":"Philippines · UTC+8 · Prêt pour le travail à distance","AVAILABLE FOR REMOTE PROJECTS · PHILIPPINES":"DISPONIBLE POUR DES PROJETS À DISTANCE · PHILIPPINES","STR Operations · Philippines · Remote":"Opérations STR · Philippines · À distance","Guest services across 400+ properties.":"Service client pour plus de 400 propriétés.","Need someone who can operate and build?":"Besoin de quelqu’un capable d’opérer et de construire ?","Operator who likes to build.":"Un opérateur qui aime construire.","The builds behind the thinking.":"Les projets derrière la réflexion.","Practical projects showing how I use technology to solve real operational problems.":"Des projets pratiques montrant comment j’utilise la technologie pour résoudre de vrais problèmes opérationnels.","The technical side is the extra: I’m self-taught, curious, and always interested in finding a practical way to improve a process.":"La partie technique est un plus : je suis autodidacte, curieux et toujours à la recherche d’une façon pratique d’améliorer un processus.","PERSONAL PROJECT · NO PUBLIC SCREENSHOT":"PROJET PERSONNEL · PAS DE CAPTURE PUBLIQUE","PROJECT VISUAL":"VISUEL DU PROJET","Your name or company":"Votre nom ou entreprise","Something went wrong. Try again.":"Une erreur s’est produite. Réessayez.","Sent. I'll be in touch soon.":"Envoyé. Je vous contacterai bientôt.","Years Work Experience":"Années d’expérience professionnelle","STR OPERATIONS + TECH + AUTOMATION":"OPÉRATIONS STR + TECH + AUTOMATISATION","Comfortable inside the stack.":"À l’aise dans cet écosystème.","I don't just use tools. I build with them.":"Je ne me contente pas d’utiliser les outils. Je construis avec eux.","Operations came first.":"Les opérations sont venues en premier.","What do you actually do?":"Que faites-vous réellement ?","How do you handle guest communications?":"Comment gérez-vous les échanges avec les voyageurs ?","What does property management mean in your role?":"Que signifie la gestion immobilière dans votre rôle ?","How do you use automation and AI?":"Comment utilisez-vous l’automatisation et l’IA ?","What makes you different from a typical VA?":"Qu’est-ce qui vous distingue d’un VA classique ?","What technical stuff are you learning?":"Quelles compétences techniques apprenez-vous ?","Web & Development":"Web et développement","Design & Productivity":"Design et productivité","Infrastructure":"Infrastructure","Communication":"Communication","Automation & AI":"Automatisation et IA","Home Server":"Serveur personnel","n8n Automations":"Automatisations n8n","Custom Web Projects":"Projets web personnalisés","AI-Assisted Development":"Développement assisté par IA","Raspberry Pi · Embedded Tech":"Raspberry Pi · Technologie embarquée","My Portfolio":"Mon portfolio","Chrome Extension · Internal Tool":"Extension Chrome · Outil interne","Web Application · Freelancer Tool":"Application web · Outil freelance","Web Application":"Application web","Invoice Generator":"Générateur de factures","Personal Budget Tracker":"Suivi de budget personnel","STR OpsDesk":"STR OpsDesk",
+
+    "About":"À propos",
+    "Experience":"Expérience",
+    "Projects":"Projets",
+    "Technical Projects":"Projets techniques",
+    "Skills & Tools":"Compétences et outils",
+    "Contact":"Contact",
+    "Language":"Langue",
+    "Dark":"Sombre",
+    "Light":"Clair",
+    "Paper":"Papier",
+    "Skip to content":"Passer au contenu",
+    "See my work":"Voir mon travail",
+    "Open Tool":"Ouvrir l’outil",
+    "LIVE TOOL":"OUTIL EN LIGNE",
+    "Message":"Message",
+    "Email":"E-mail",
+    "How I work":"Comment je travaille",
+    "Want to know how I work?":"Vous voulez savoir comment je travaille ?",
+    "Platforms I work in":"Plateformes que j’utilise",
+    "Systems & Platforms":"Systèmes et plateformes",
+    "STR Platforms":"Plateformes STR",
+    "STR Operations":"Opérations STR",
+    "STR Operations + Guest Services":"Opérations STR + service client",
+    "Operations + Technology":"Opérations + technologie",
+    "400+ STR Properties":"400+ propriétés STR",
+    "STR Properties":"Propriétés STR",
+    "Remote · UTC+8":"À distance · UTC+8",
+    "Philippines · UTC+8 · Remote-Ready":"Philippines · UTC+8 · Prêt pour le travail à distance",
+    "AVAILABLE FOR REMOTE PROJECTS · PHILIPPINES":"DISPONIBLE POUR DES PROJETS À DISTANCE · PHILIPPINES",
+    "STR Operations · Philippines · Remote":"Opérations STR · Philippines · À distance",
+    "Guest services across 400+ properties.":"Service client pour plus de 400 propriétés.",
+    "Need someone who can operate and build?":"Besoin de quelqu’un capable d’opérer et de construire ?",
+    "Operator who likes to build.":"Un opérateur qui aime construire.",
+    "The builds behind the thinking.":"Les projets derrière la réflexion.",
+    "Practical projects showing how I use technology to solve real operational problems.":"Des projets pratiques montrant comment j’utilise la technologie pour résoudre de vrais problèmes opérationnels.",
+    "The technical side is the extra: I’m self-taught, curious, and always interested in finding a practical way to improve a process.":"La partie technique est un plus : je suis autodidacte, curieux et toujours à la recherche d’une façon pratique d’améliorer un processus.",
+    "PERSONAL PROJECT · NO PUBLIC SCREENSHOT":"PROJET PERSONNEL · PAS DE CAPTURE PUBLIQUE",
+    "PROJECT VISUAL":"VISUEL DU PROJET",
+    "Your name or company":"Votre nom ou entreprise",
+    "Something went wrong. Try again.":"Une erreur s’est produite. Réessayez.",
+    "Sent. I'll be in touch soon.":"Envoyé. Je vous contacterai bientôt.",
+    "Years Work Experience":"Années d’expérience professionnelle",
+    "STR OPERATIONS + TECH + AUTOMATION":"OPÉRATIONS STR + TECH + AUTOMATISATION",
+    "Comfortable inside the stack.":"À l’aise dans cet écosystème.",
+    "I don't just use tools. I build with them.":"Je ne me contente pas d’utiliser les outils. Je construis avec eux.",
+    "Operations came first.":"Les opérations sont venues en premier.",
+    "What do you actually do?":"Que faites-vous réellement ?",
+    "How do you handle guest communications?":"Comment gérez-vous les échanges avec les voyageurs ?",
+    "What does property management mean in your role?":"Que signifie la gestion immobilière dans votre rôle ?",
+    "How do you use automation and AI?":"Comment utilisez-vous l’automatisation et l’IA ?",
+    "What makes you different from a typical VA?":"Qu’est-ce qui vous distingue d’un VA classique ?",
+    "What technical stuff are you learning?":"Quelles compétences techniques apprenez-vous ?",
+    "Web & Development":"Web et développement",
+    "Design & Productivity":"Design et productivité",
+    "Infrastructure":"Infrastructure",
+    "Communication":"Communication",
+    "Automation & AI":"Automatisation et IA",
+    "Home Server":"Serveur personnel",
+    "n8n Automations":"Automatisations n8n",
+    "Custom Web Projects":"Projets web personnalisés",
+    "AI-Assisted Development":"Développement assisté par IA",
+    "Raspberry Pi · Embedded Tech":"Raspberry Pi · Technologie embarquée",
+    "My Portfolio":"Mon portfolio",
+    "Chrome Extension · Internal Tool":"Extension Chrome · Outil interne",
+    "Web Application · Freelancer Tool":"Application web · Outil freelance",
+    "Web Application":"Application web",
+    "Invoice Generator":"Générateur de factures",
+    "Personal Budget Tracker":"Suivi de budget personnel",
+    "STR OpsDesk":"STR OpsDesk",
   },
   fil: {
-    "About":"Tungkol sa akin","Experience":"Karanasan","Projects":"Mga proyekto","Technical Projects":"Mga technical project","Skills & Tools":"Skills at tools","Contact":"Contact","Language":"Wika","Dark":"Madilim","Light":"Maliwanag","Paper":"Papel","Skip to content":"Laktaw sa content","See my work":"Tingnan ang mga ginawa ko","Open Tool":"Buksan ang tool","LIVE TOOL":"LIVE TOOL","Message":"Mensahe","Email":"Email","How I work":"Paano ako nagtatrabaho","Want to know how I work?":"Gusto mong malaman kung paano ako nagtatrabaho?","Platforms I work in":"Mga platform na ginagamit ko","Systems & Platforms":"Systems at platforms","STR Platforms":"STR platforms","STR Operations":"STR Operations","STR Operations + Guest Services":"STR Operations + Guest Services","Operations + Technology":"Operations + Technology","400+ STR Properties":"400+ STR Properties","STR Properties":"STR Properties","Remote · UTC+8":"Remote · UTC+8","Philippines · UTC+8 · Remote-Ready":"Philippines · UTC+8 · Ready for remote work","AVAILABLE FOR REMOTE PROJECTS · PHILIPPINES":"AVAILABLE PARA SA REMOTE PROJECTS · PILIPINAS","STR Operations · Philippines · Remote":"STR Operations · Pilipinas · Remote","Guest services across 400+ properties.":"Guest services para sa 400+ properties.","Need someone who can operate and build?":"Kailangan mo ng marunong mag-operate at mag-build?","Operator who likes to build.":"Operator na mahilig mag-build.","The builds behind the thinking.":"Mga build sa likod ng mga idea.","Practical projects showing how I use technology to solve real operational problems.":"Mga practical project na nagpapakita kung paano ko ginagamit ang tech para lutasin ang totoong operational problems.","The technical side is the extra: I’m self-taught, curious, and always interested in finding a practical way to improve a process.":"Bonus ang technical side: self-taught ako, curious, at laging naghahanap ng practical na paraan para mapaganda ang proseso.","PERSONAL PROJECT · NO PUBLIC SCREENSHOT":"PERSONAL PROJECT · WALANG PUBLIC SCREENSHOT","PROJECT VISUAL":"PROJECT VISUAL","Your name or company":"Pangalan mo o company","Something went wrong. Try again.":"May nagkaproblema. Subukan ulit.","Sent. I'll be in touch soon.":"Na-send na. Babalik ako sa iyo soon.","Years Work Experience":"Taon ng work experience","STR OPERATIONS + TECH + AUTOMATION":"STR OPERATIONS + TECH + AUTOMATION","Comfortable inside the stack.":"Komportable ako sa tools at systems na gamit sa operations.","I don't just use tools. I build with them.":"Hindi lang ako gumagamit ng tools. Nagbu-build din ako gamit ang mga ito.","Operations came first.":"Operations ang foundation ko.","What do you actually do?":"Ano ba talaga ang ginagawa mo?","How do you handle guest communications?":"Paano mo hina-handle ang guest communications?","What does property management mean in your role?":"Ano ang property management sa role mo?","How do you use automation and AI?":"Paano mo ginagamit ang automation at AI?","What makes you different from a typical VA?":"Ano ang difference mo sa typical VA?","What technical stuff are you learning?":"Anong technical stuff ang pinag-aaralan mo?","Web & Development":"Web at development","Design & Productivity":"Design at productivity","Infrastructure":"Infrastructure","Communication":"Communication","Automation & AI":"Automation at AI","Home Server":"Home Server","n8n Automations":"n8n Automations","Custom Web Projects":"Custom Web Projects","AI-Assisted Development":"AI-Assisted Development","Raspberry Pi · Embedded Tech":"Raspberry Pi · Embedded Tech","My Portfolio":"My Portfolio","Chrome Extension · Internal Tool":"Chrome Extension · Internal Tool","Web Application · Freelancer Tool":"Web Application · Freelancer Tool","Web Application":"Web Application","Invoice Generator":"Invoice Generator","Personal Budget Tracker":"Personal Budget Tracker","STR OpsDesk":"STR OpsDesk",
+
+    "About":"Tungkol sa akin",
+    "Experience":"Karanasan",
+    "Projects":"Mga proyekto",
+    "Technical Projects":"Mga technical project",
+    "Skills & Tools":"Skills at tools",
+    "Contact":"Contact",
+    "Language":"Wika",
+    "Dark":"Madilim",
+    "Light":"Maliwanag",
+    "Paper":"Papel",
+    "Skip to content":"Laktaw sa content",
+    "See my work":"Tingnan ang mga ginawa ko",
+    "Open Tool":"Buksan ang tool",
+    "LIVE TOOL":"LIVE TOOL",
+    "Message":"Mensahe",
+    "Email":"Email",
+    "How I work":"Paano ako nagtatrabaho",
+    "Want to know how I work?":"Gusto mong malaman kung paano ako nagtatrabaho?",
+    "Platforms I work in":"Mga platform na ginagamit ko",
+    "Systems & Platforms":"Systems at platforms",
+    "STR Platforms":"STR platforms",
+    "STR Operations":"STR Operations",
+    "STR Operations + Guest Services":"STR Operations + Guest Services",
+    "Operations + Technology":"Operations + Technology",
+    "400+ STR Properties":"400+ STR Properties",
+    "STR Properties":"STR Properties",
+    "Remote · UTC+8":"Remote · UTC+8",
+    "Philippines · UTC+8 · Remote-Ready":"Philippines · UTC+8 · Ready for remote work",
+    "AVAILABLE FOR REMOTE PROJECTS · PHILIPPINES":"AVAILABLE PARA SA REMOTE PROJECTS · PILIPINAS",
+    "STR Operations · Philippines · Remote":"STR Operations · Pilipinas · Remote",
+    "Guest services across 400+ properties.":"Guest services para sa 400+ properties.",
+    "Need someone who can operate and build?":"Kailangan mo ng marunong mag-operate at mag-build?",
+    "Operator who likes to build.":"Operator na mahilig mag-build.",
+    "The builds behind the thinking.":"Mga build sa likod ng mga idea.",
+    "Practical projects showing how I use technology to solve real operational problems.":"Mga practical project na nagpapakita kung paano ko ginagamit ang tech para lutasin ang totoong operational problems.",
+    "The technical side is the extra: I’m self-taught, curious, and always interested in finding a practical way to improve a process.":"Bonus ang technical side: self-taught ako, curious, at laging naghahanap ng practical na paraan para mapaganda ang proseso.",
+    "PERSONAL PROJECT · NO PUBLIC SCREENSHOT":"PERSONAL PROJECT · WALANG PUBLIC SCREENSHOT",
+    "PROJECT VISUAL":"PROJECT VISUAL",
+    "Your name or company":"Pangalan mo o company",
+    "Something went wrong. Try again.":"May nagkaproblema. Subukan ulit.",
+    "Sent. I'll be in touch soon.":"Na-send na. Babalik ako sa iyo soon.",
+    "Years Work Experience":"Taon ng work experience",
+    "STR OPERATIONS + TECH + AUTOMATION":"STR OPERATIONS + TECH + AUTOMATION",
+    "Comfortable inside the stack.":"Komportable ako sa tools at systems na gamit sa operations.",
+    "I don't just use tools. I build with them.":"Hindi lang ako gumagamit ng tools. Nagbu-build din ako gamit ang mga ito.",
+    "Operations came first.":"Operations ang foundation ko.",
+    "What do you actually do?":"Ano ba talaga ang ginagawa mo?",
+    "How do you handle guest communications?":"Paano mo hina-handle ang guest communications?",
+    "What does property management mean in your role?":"Ano ang property management sa role mo?",
+    "How do you use automation and AI?":"Paano mo ginagamit ang automation at AI?",
+    "What makes you different from a typical VA?":"Ano ang difference mo sa typical VA?",
+    "What technical stuff are you learning?":"Anong technical stuff ang pinag-aaralan mo?",
+    "Web & Development":"Web at development",
+    "Design & Productivity":"Design at productivity",
+    "Infrastructure":"Infrastructure",
+    "Communication":"Communication",
+    "Automation & AI":"Automation at AI",
+    "Home Server":"Home Server",
+    "n8n Automations":"n8n Automations",
+    "Custom Web Projects":"Custom Web Projects",
+    "AI-Assisted Development":"AI-Assisted Development",
+    "Raspberry Pi · Embedded Tech":"Raspberry Pi · Embedded Tech",
+    "My Portfolio":"My Portfolio",
+    "Chrome Extension · Internal Tool":"Chrome Extension · Internal Tool",
+    "Web Application · Freelancer Tool":"Web Application · Freelancer Tool",
+    "Web Application":"Web Application",
+    "Invoice Generator":"Invoice Generator",
+    "Personal Budget Tracker":"Personal Budget Tracker",
+    "STR OpsDesk":"STR OpsDesk",
   },
   zh: {
-    "About":"关于我","Experience":"经历","Projects":"项目","Technical Projects":"技术项目","Skills & Tools":"技能与工具","Contact":"联系我","Language":"语言","Dark":"深色","Light":"浅色","Paper":"纸张","Skip to content":"跳到内容","See my work":"查看我的作品","Open Tool":"打开工具","LIVE TOOL":"在线工具","Message":"留言","Email":"电子邮件","How I work":"我的工作方式","Want to know how I work?":"想了解我的工作方式？","Platforms I work in":"我使用的平台","Systems & Platforms":"系统与平台","STR Platforms":"STR 平台","STR Operations":"STR 运营","STR Operations + Guest Services":"STR 运营 + 客户服务","Operations + Technology":"运营 + 技术","400+ STR Properties":"400+ STR 房源","STR Properties":"STR 房源","Remote · UTC+8":"远程 · UTC+8","Philippines · UTC+8 · Remote-Ready":"菲律宾 · UTC+8 · 可远程合作","AVAILABLE FOR REMOTE PROJECTS · PHILIPPINES":"接受远程项目 · 菲律宾","STR Operations · Philippines · Remote":"STR 运营 · 菲律宾 · 远程","Guest services across 400+ properties.":"为 400+ 房源提供客户服务支持。","Need someone who can operate and build?":"需要一个既能运营又能构建系统的人？","Operator who likes to build.":"喜欢构建系统的运营人员。","The builds behind the thinking.":"思考背后的实践项目。","Practical projects showing how I use technology to solve real operational problems.":"通过实际项目展示我如何用技术解决真实的运营问题。","The technical side is the extra: I’m self-taught, curious, and always interested in finding a practical way to improve a process.":"技术能力是额外优势：我通过自学不断探索，并喜欢用实际方式优化流程。","PERSONAL PROJECT · NO PUBLIC SCREENSHOT":"个人项目 · 无公开截图","PROJECT VISUAL":"项目展示","Your name or company":"你的姓名或公司","Something went wrong. Try again.":"出了点问题，请重试。","Sent. I'll be in touch soon.":"已发送，我会尽快联系你。","Years Work Experience":"工作经验年数","STR OPERATIONS + TECH + AUTOMATION":"STR 运营 + 技术 + 自动化","Comfortable inside the stack.":"熟悉相关工具与系统。","I don't just use tools. I build with them.":"我不仅使用工具，也用它们构建系统。","Operations came first.":"运营是我的基础。","What do you actually do?":"你具体做什么？","How do you handle guest communications?":"你如何处理客户沟通？","What does property management mean in your role?":"房产管理在你的工作中意味着什么？","How do you use automation and AI?":"你如何使用自动化和 AI？","What makes you different from a typical VA?":"你与普通 VA 有什么不同？","What technical stuff are you learning?":"你正在学习哪些技术？","Web & Development":"网页与开发","Design & Productivity":"设计与效率","Infrastructure":"基础设施","Communication":"沟通","Automation & AI":"自动化与 AI","Home Server":"家庭服务器","n8n Automations":"n8n 自动化","Custom Web Projects":"定制网页项目","AI-Assisted Development":"AI 辅助开发","Raspberry Pi · Embedded Tech":"Raspberry Pi · 嵌入式技术","My Portfolio":"我的作品集","Chrome Extension · Internal Tool":"Chrome 扩展 · 内部工具","Web Application · Freelancer Tool":"网页应用 · 自由职业者工具","Web Application":"网页应用","Invoice Generator":"发票生成器","Personal Budget Tracker":"个人预算追踪器","STR OpsDesk":"STR OpsDesk",
+
+    "About":"关于我",
+    "Experience":"经历",
+    "Projects":"项目",
+    "Technical Projects":"技术项目",
+    "Skills & Tools":"技能与工具",
+    "Contact":"联系我",
+    "Language":"语言",
+    "Dark":"深色",
+    "Light":"浅色",
+    "Paper":"纸张",
+    "Skip to content":"跳到内容",
+    "See my work":"查看我的作品",
+    "Open Tool":"打开工具",
+    "LIVE TOOL":"在线工具",
+    "Message":"留言",
+    "Email":"电子邮件",
+    "How I work":"我的工作方式",
+    "Want to know how I work?":"想了解我的工作方式？",
+    "Platforms I work in":"我使用的平台",
+    "Systems & Platforms":"系统与平台",
+    "STR Platforms":"STR 平台",
+    "STR Operations":"STR 运营",
+    "STR Operations + Guest Services":"STR 运营 + 客户服务",
+    "Operations + Technology":"运营 + 技术",
+    "400+ STR Properties":"400+ STR 房源",
+    "STR Properties":"STR 房源",
+    "Remote · UTC+8":"远程 · UTC+8",
+    "Philippines · UTC+8 · Remote-Ready":"菲律宾 · UTC+8 · 可远程合作",
+    "AVAILABLE FOR REMOTE PROJECTS · PHILIPPINES":"接受远程项目 · 菲律宾",
+    "STR Operations · Philippines · Remote":"STR 运营 · 菲律宾 · 远程",
+    "Guest services across 400+ properties.":"为 400+ 房源提供客户服务支持。",
+    "Need someone who can operate and build?":"需要一个既能运营又能构建系统的人？",
+    "Operator who likes to build.":"喜欢构建系统的运营人员。",
+    "The builds behind the thinking.":"思考背后的实践项目。",
+    "Practical projects showing how I use technology to solve real operational problems.":"通过实际项目展示我如何用技术解决真实的运营问题。",
+    "The technical side is the extra: I’m self-taught, curious, and always interested in finding a practical way to improve a process.":"技术能力是额外优势：我通过自学不断探索，并喜欢用实际方式优化流程。",
+    "PERSONAL PROJECT · NO PUBLIC SCREENSHOT":"个人项目 · 无公开截图",
+    "PROJECT VISUAL":"项目展示",
+    "Your name or company":"你的姓名或公司",
+    "Something went wrong. Try again.":"出了点问题，请重试。",
+    "Sent. I'll be in touch soon.":"已发送，我会尽快联系你。",
+    "Years Work Experience":"工作经验年数",
+    "STR OPERATIONS + TECH + AUTOMATION":"STR 运营 + 技术 + 自动化",
+    "Comfortable inside the stack.":"熟悉相关工具与系统。",
+    "I don't just use tools. I build with them.":"我不仅使用工具，也用它们构建系统。",
+    "Operations came first.":"运营是我的基础。",
+    "What do you actually do?":"你具体做什么？",
+    "How do you handle guest communications?":"你如何处理客户沟通？",
+    "What does property management mean in your role?":"房产管理在你的工作中意味着什么？",
+    "How do you use automation and AI?":"你如何使用自动化和 AI？",
+    "What makes you different from a typical VA?":"你与普通 VA 有什么不同？",
+    "What technical stuff are you learning?":"你正在学习哪些技术？",
+    "Web & Development":"网页与开发",
+    "Design & Productivity":"设计与效率",
+    "Infrastructure":"基础设施",
+    "Communication":"沟通",
+    "Automation & AI":"自动化与 AI",
+    "Home Server":"家庭服务器",
+    "n8n Automations":"n8n 自动化",
+    "Custom Web Projects":"定制网页项目",
+    "AI-Assisted Development":"AI 辅助开发",
+    "Raspberry Pi · Embedded Tech":"Raspberry Pi · 嵌入式技术",
+    "My Portfolio":"我的作品集",
+    "Chrome Extension · Internal Tool":"Chrome 扩展 · 内部工具",
+    "Web Application · Freelancer Tool":"网页应用 · 自由职业者工具",
+    "Web Application":"网页应用",
+    "Invoice Generator":"发票生成器",
+    "Personal Budget Tracker":"个人预算追踪器",
+    "STR OpsDesk":"STR OpsDesk",
   },
 };
 
@@ -967,8 +1242,43 @@ function ContactCharacter({ state }: { state: CharState }) {
           }
         }
 
-        @media (max-width: 900px) { .theme-switcher { display:none; } .nav-tools { gap:.35rem; } }
-        @media (max-width: 800px) { .nav { height:60px; } .hero-layout { gap:2.25rem; } .hero-ask { margin-top:2.3rem; } }
+        /* ── MOBILE NAV / LAYOUT SAFETY ── */
+        .contact-3col {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 200px minmax(0, 1fr);
+          gap: 2.5rem;
+          align-items: start;
+        }
+        .nav-tools { min-width: 0; }
+        .nav-logo { white-space: nowrap; }
+        .language-switcher, .theme-switcher { flex-shrink: 0; }
+        @media (max-width: 900px) {
+          .nav { padding: 0 1.25rem; }
+          .theme-switcher { display:none; }
+          .nav-tools { gap:.45rem; }
+          .contact-3col { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
+          .contact-3col > :nth-child(2) { grid-column: 1 / -1; grid-row: 1; order: -1; }
+          .contact-3col > :first-child { grid-column: 1; }
+          .contact-3col > :nth-child(3) { grid-column: 2; }
+        }
+        @media (max-width: 800px) {
+          .nav { height:60px; }
+          .nav-logo { font-size: 1rem; }
+          .language-switcher-label { display:none; }
+          .language-switcher { padding: 0 .55rem; min-height: 36px; }
+          .language-switcher select { font-size: .7rem; min-width: 52px; }
+          .hero-layout { gap:2.25rem; }
+          .hero-ask { margin-top:2.3rem; }
+          .hero-p { max-width: none; }
+          .hero-actions { width:100%; }
+          .hero-actions > * { flex: 1 1 150px; justify-content:center; text-align:center; }
+          .hero-system { max-width:100%; }
+          .hero-system span { min-width:0; overflow-wrap:anywhere; }
+          .contact-3col { grid-template-columns: 1fr; gap: 1.75rem; }
+          .contact-3col > :first-child,
+          .contact-3col > :nth-child(2),
+          .contact-3col > :nth-child(3) { grid-column: 1; grid-row:auto; }
+        }
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.001ms !important; }
         }
@@ -1361,6 +1671,17 @@ export default function HomePage() {
           font-family: 'DM Serif Display', serif;
           font-size: 1.1rem; color: #fff;
           transition: color .3s;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          min-height: 44px;
+          line-height: 1;
+        }
+        .nav-logo:hover { color: #FF5A5F; }
+        .nav-logo:focus-visible {
+          outline: 2px solid currentColor;
+          outline-offset: 4px;
+          border-radius: 4px;
         }
         .nav.scrolled .nav-logo { color: #222; }
         .nav-links { display: flex; align-items: center; gap: 1.6rem; }
@@ -1958,10 +2279,34 @@ export default function HomePage() {
           .technical-grid { grid-template-columns: 1fr; }
           .technical-img-wrap { height: 240px; }
         }
+        @media (max-width: 640px) {
+          .featured-project-grid { grid-template-columns: 1fr; }
+          .project-img-wrap { height: 220px; }
+          .portfolio-head { gap: 1rem; }
+          .portfolio-head .sec-sub { max-width: none !important; }
+          .technical-img-wrap { height: 210px; }
+          .footer { padding: 1.2rem 1.1rem; flex-direction: column; align-items: flex-start; }
+          .footer-links { flex-wrap: wrap; gap: .75rem 1rem; }
+        }
         @media (max-width: 520px) {
           .hero-body { padding: 6.5rem 1.1rem 3rem; }
-          .sec { padding: 4rem 1.4rem; }
-          .nav { padding: 0 1.2rem; }
+          .sec { padding: 4rem 1.1rem; }
+          .nav { padding: 0 .9rem; }
+          .nav-logo { font-size: .95rem; }
+          .nav-tools { gap: .3rem; }
+          .menu-btn { font-size: 1.25rem; padding: .25rem; }
+          .hero-h1 { font-size: clamp(2.8rem, 15vw, 4.25rem); }
+          .hero-kicker { font-size: .58rem; letter-spacing:.11em; }
+          .hero-question { padding: .82rem .85rem; font-size: .74rem; }
+          .hero-answer { font-size: .73rem; }
+          .sleeping-cat-wrap { width: 112px; top: -52px; }
+          .hero-ask-bubble { right: 70px; top: -34px; max-width: 145px; font-size: .64rem; }
+          .social-pill-dark { max-width: 100%; overflow-wrap:anywhere; }
+          .contact-info-card { padding: 1.25rem; }
+          .contact-characters { min-height: 200px; }
+          .contact-character { width: 118px; }
+          .sleeping-cat { width: 118px; margin-left: -24px; }
+          .form-field-dark { font-size: 16px; }
         }
         @media (prefers-reduced-motion: reduce) {
           *, .hero-photo { animation: none !important; transition: none !important; }
@@ -1969,8 +2314,8 @@ export default function HomePage() {
       `}</style>
 
       {/* ── NAV ── */}
-      <header className={`nav ${scrolled ? "scrolled" : ""}`}>
-        <span className="nav-logo">Von Untalan</span>
+      <header id="top" className={`nav ${scrolled ? "scrolled" : ""}`}>
+        <a className="nav-logo" href="#top" aria-label="Von Untalan home">Von Untalan</a>
         <nav className="nav-links" aria-label="Main navigation">
           {[
             ["about", "About"],
@@ -2411,7 +2756,7 @@ export default function HomePage() {
             <p className="sec-sub sec-sub-light" style={{ marginBottom: "2.5rem" }}>Best suited for STR property managers, growing operations teams, and small businesses that need someone who understands both operations and technology.</p>
 
             {/* 3-col: info | character | form */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 200px 1fr", gap: "2.5rem", alignItems: "start" }} className="contact-3col">
+            <div className="contact-3col">
 
               {/* LEFT: info */}
               <div>
